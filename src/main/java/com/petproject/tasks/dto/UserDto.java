@@ -11,7 +11,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class UserDto {
+public class UserDto implements Dto{
     private String username;
     private String password;
     private String firstName;

@@ -13,15 +13,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login").permitAll()
+                        .requestMatchers("/register", "/login", "/css/**").permitAll() // Разрешаем доступ
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/tasks", true)
+                        .loginPage("/login") // Указываем кастомную страницу логина
+                        .defaultSuccessUrl("/tasks", true) // Куда редиректить после логина
                         .permitAll()
                 )
-                .logout(logout -> logout.logoutUrl("/logout").permitAll());
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout") // После выхода — на страницу логина
+                        .permitAll()
+                );
 
         return http.build();
     }

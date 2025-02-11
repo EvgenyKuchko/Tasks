@@ -1,7 +1,7 @@
 package com.petproject.tasks.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,8 +12,12 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-@Data
-public class User implements UserDetails {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User implements UserDetails, EntityObj {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
