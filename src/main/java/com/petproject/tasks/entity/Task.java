@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-@Entity( name = "tasks")
+@Entity(name = "tasks")
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
