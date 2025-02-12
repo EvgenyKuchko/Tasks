@@ -1,17 +1,16 @@
 package com.petproject.tasks.transformer;
 
-import com.petproject.tasks.dto.Dto;
 import com.petproject.tasks.dto.UserDto;
-import com.petproject.tasks.entity.EntityObj;
 import com.petproject.tasks.entity.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserTransformer implements Transformer<User, UserDto>{
+public class UserTransformer implements Transformer<User, UserDto> {
 
     @Override
     public UserDto transform(User user) {
         return UserDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .username(user.getUsername())
                 .password(user.getPassword())

@@ -1,13 +1,18 @@
 package com.petproject.tasks.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+
 @Entity(name = "tasks")
-public class Task {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Task implements EntityObj{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

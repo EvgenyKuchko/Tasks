@@ -23,10 +23,9 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout") // После выхода — на страницу логина
+                        .logoutSuccessUrl("/login") // После выхода — на страницу логина
                         .permitAll()
                 );
-
         return http.build();
     }
 
