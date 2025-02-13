@@ -8,7 +8,7 @@
 
 <ul>
   <li th:each="task : ${tasks}">
-    <strong th:text="${task.title}"></strong> - <span th:text="${task.description}"></span>
+    <strong th:text="${task.title}"></strong> - <span th:text="${task.description}"></span> - <span th:text="${task.status}"></span>
   </li>
 </ul>
 
