@@ -10,6 +10,16 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
+    public LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
@@ -18,7 +28,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // Указываем кастомную страницу логина
-                        .defaultSuccessUrl("/tasks", true) // Куда редиректить после логина
+                        .successHandler(loginSuccessHandler()) // Куда редиректить после логина
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -27,10 +37,5 @@ public class SecurityConfig {
                         .permitAll()
                 );
         return http.build();
-    }
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

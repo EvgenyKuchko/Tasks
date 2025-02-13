@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Календарь задач</title>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь задач</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body>
 <h1>Привет, <span th:text="${firstName}">Пользователь</span>!</h1>
@@ -12,21 +12,26 @@
 <div id="calendar"></div>
 
 <script th:inline="javascript">
-  /*<![CDATA[*/
-  let eventsData = /*[[${events}]]*/ '[]'; // Thymeleaf вставляет JSON-данные
-  let events = JSON.parse(JSON.stringify(eventsData)); // Преобразуем в массив объектов
-  console.log("Events from Thymeleaf:", events); // Проверяем в консоли
-  /*]]>*/
+    /*<![CDATA[*/
+    let eventsData = /*[[${events}]]*/ '[]'; // Thymeleaf вставляет JSON-данные
+    let events = JSON.parse(JSON.stringify(eventsData)); // Преобразуем в массив объектов
+    console.log("Events from Thymeleaf:", events); // Проверяем в консоли
+    /*]]>*/
 
-  document.addEventListener('DOMContentLoaded', function() {
-      let calendarEl = document.getElementById('calendar');
-      let calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth',
-          locale: 'ru',
-          events: events // Загружаем события из Thymeleaf
-      });
-      calendar.render();
-  });
+    document.addEventListener('DOMContentLoaded', function() {
+        let calendarEl = document.getElementById('calendar');
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ru',
+            events: events // Загружаем события из Thymeleaf
+
+<!--            dateClick: function(info) {-->
+<!--                      let selectedDate = info.dateStr; // Получаем кликнутую дату-->
+<!--                      window.location.href = '/tasks/date/' + selectedDate; // Перенаправляем-->
+<!--                  }-->
+        });
+        calendar.render();
+    });
 </script>
 
 </body>

@@ -5,9 +5,11 @@ import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.service.TaskService;
+import com.petproject.tasks.service.UserService;
 import com.petproject.tasks.transformer.TaskTransformer;
 import com.petproject.tasks.transformer.UserTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,16 +30,24 @@ public class TaskController {
     private UserTransformer userTransformer;
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private UserService userService;
 
-    @GetMapping
-    public String showCalendarPage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        String username = userDetails.getUsername();
+    @GetMapping("/{userId}")
+    public String showCalendarPage(@PathVariable("userId") Long userId,
+                                   @AuthenticationPrincipal UserDetails userDetails, Model model) {
+//        String username = userDetails.getUsername();
 
-        UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
-        if(userDto == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
+//        UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
+//        if(userDto == null) {
+//            throw new UsernameNotFoundException("User not found");
+//        }
+//        model.addAttribute("firstName", userDto.getFirstName());
+
+
+        UserDto userDto = userService.getUserById(userId);
         model.addAttribute("firstName", userDto.getFirstName());
+
 
         List<Map<String, String>> events = new ArrayList<>();
 
@@ -68,5 +78,10 @@ public class TaskController {
         model.addAttribute("events", events);
 
         return "calendar";
+    }
+
+    @GetMapping("/{userId}/{date}")
+    public String showTasksListByDate(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return "tasks";
     }
 }

@@ -55,4 +55,14 @@ public class UserService implements UserDetailsService {
         }
         return new org.springframework.security.core.userdetails.User(userDto.getUsername(), userDto.getPassword(), grantedAuthorities);
     }
+
+    @Transactional
+    public UserDto getUserById(Long id) {
+        return userTransformer.transform(userRepository.getReferenceById(id));
+    }
+
+    @Transactional
+    public UserDto getUserByUsername(String username) {
+        return userTransformer.transform(userRepository.findByUsername(username));
+    }
 }
