@@ -34,21 +34,11 @@ public class TaskController {
     private UserService userService;
 
     @GetMapping("/{userId}")
-    public String showCalendarPage(@PathVariable("userId") Long userId,
-                                   @AuthenticationPrincipal UserDetails userDetails, Model model) {
-//        String username = userDetails.getUsername();
-
-//        UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
-//        if(userDto == null) {
-//            throw new UsernameNotFoundException("User not found");
-//        }
-//        model.addAttribute("firstName", userDto.getFirstName());
-
+    public String showCalendarPage(@PathVariable("userId") Long userId, Model model) {
 
         UserDto userDto = userService.getUserById(userId);
         model.addAttribute("firstName", userDto.getFirstName());
-
-
+        model.addAttribute("userId", userDto.getId());
         List<Map<String, String>> events = new ArrayList<>();
 
 //        for (TaskDto task : taskService.getTasksByUserId(userDto.getId())) {  // Загружаем все задачи из БД

@@ -13,6 +13,7 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
+    let userId = /*[[${userId}]]*/ '1';
     let eventsData = /*[[${events}]]*/ '[]'; // Thymeleaf вставляет JSON-данные
     let events = JSON.parse(JSON.stringify(eventsData)); // Преобразуем в массив объектов
     console.log("Events from Thymeleaf:", events); // Проверяем в консоли
@@ -23,12 +24,12 @@
         let calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ru',
-            events: events // Загружаем события из Thymeleaf
+            events: events, // Загружаем события из Thymeleaf
 
-<!--            dateClick: function(info) {-->
-<!--                      let selectedDate = info.dateStr; // Получаем кликнутую дату-->
-<!--                      window.location.href = '/tasks/date/' + selectedDate; // Перенаправляем-->
-<!--                  }-->
+            dateClick: function(info) {
+                      let selectedDate = info.dateStr; // Получаем кликнутую дату
+                      window.location.href = '/tasks/' + userId + '/' + selectedDate; // Перенаправляем
+                  }
         });
         calendar.render();
     });

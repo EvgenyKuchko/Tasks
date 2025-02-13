@@ -1,7 +1,6 @@
 package com.petproject.tasks.service;
 
 import com.petproject.tasks.dto.TaskDto;
-import com.petproject.tasks.entity.Task;
 import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.transformer.TaskTransformer;
 import jakarta.transaction.Transactional;
