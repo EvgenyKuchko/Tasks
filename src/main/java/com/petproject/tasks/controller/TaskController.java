@@ -33,6 +33,9 @@ public class TaskController {
     @Autowired
     private UserService userService;
 
+    private List<TaskDto> tasks = new ArrayList<>();
+
+
     @GetMapping("/{userId}")
     public String showCalendarPage(@PathVariable("userId") Long userId, Model model) {
 
@@ -51,7 +54,7 @@ public class TaskController {
 //            events.add(event);
 //        }
 
-        List<TaskDto> tasks = taskService.getTasksByUserId(userDto.getId());
+        tasks = taskService.getTasksByUserId(userDto.getId());
         Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
 
         for (TaskDto task : tasks) {
@@ -71,7 +74,14 @@ public class TaskController {
     }
 
     @GetMapping("/{userId}/{date}")
-    public String showTasksListByDate(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return "tasks";
+    public String showTasksListByDate(@PathVariable("userId") Long userId,
+                                      @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                      Model model) {
+        List<TaskDto> tasksByDate = tasks.stream()
+                .filter(t -> t.getCreationDate().equals(date))
+                .toList();
+        model.addAttribute("tasks", tasksByDate);
+
+        return "dateTasks";
     }
 }
