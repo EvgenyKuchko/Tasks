@@ -2,7 +2,6 @@ package com.petproject.tasks.dto;
 
 import com.petproject.tasks.entity.TaskStatus;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class TaskDto implements Dto{
+public class TaskDto implements Dto {
     private Long id;
     private String title;
     private String description;

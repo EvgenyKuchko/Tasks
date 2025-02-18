@@ -33,9 +33,6 @@ public class TaskController {
     @Autowired
     private UserService userService;
 
-    private List<TaskDto> tasks = new ArrayList<>();
-
-
     @GetMapping("/{userId}")
     public String showCalendarPage(@PathVariable("userId") Long userId, Model model) {
 
@@ -44,17 +41,7 @@ public class TaskController {
         model.addAttribute("userId", userDto.getId());
         List<Map<String, String>> events = new ArrayList<>();
 
-//        for (TaskDto task : taskService.getTasksByUserId(userDto.getId())) {  // Загружаем все задачи из БД
-//            Map<String, Object> event = new HashMap<>();
-//            event.put("title", task.getTitle());
-//            event.put("creation date", task.getCreationDate().toString());  // Дата выполнения
-//            event.put("description", task.getDescription());  // Описание
-//            event.put("status", task.getStatus().name());  // Статус задачи
-//            event.put("id", task.getId());  // ID задачи (чтобы потом к ней обращаться)
-//            events.add(event);
-//        }
-
-        tasks = taskService.getTasksByUserId(userDto.getId());
+        List<TaskDto> tasks = taskService.getTasksByUserId(userDto.getId());
         Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
 
         for (TaskDto task : tasks) {
@@ -77,6 +64,7 @@ public class TaskController {
     public String showTasksListByDate(@PathVariable("userId") Long userId,
                                       @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                       Model model) {
+        List<TaskDto> tasks = taskService.getTasksByUserId(userId);
         List<TaskDto> tasksByDate = tasks.stream()
                 .filter(t -> t.getCreationDate().equals(date))
                 .toList();
@@ -84,4 +72,14 @@ public class TaskController {
 
         return "dateTasks";
     }
+
+    @PostMapping("/{userId}/{date}")
+    public String addNewTask(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                             @PathVariable("userId") Long userId, @ModelAttribute TaskDto taskDto) {
+        taskDto.setCreationDate(date);
+        taskService.saveTask(taskDto, userId);
+        return "redirect:/tasks/" + userId;
+    }
+
+
 }

@@ -1,16 +1,93 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Задачи на дату</title>
+    <title>Задачи на дату</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Стили для модального окна */
+        .modal {
+            display: none; /* Скрыто по умолчанию */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+            margin: 15% auto;
+            text-align: center;
+        }
+
+        .close {
+            color: red;
+            float: right;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 <h2>Задачи на <span th:text="${date}"></span></h2>
 
 <ul>
-  <li th:each="task : ${tasks}">
-    <strong th:text="${task.title}"></strong> - <span th:text="${task.description}"></span> - <span th:text="${task.status}"></span>
-  </li>
+    <li th:each="task : ${tasks}">
+        <strong th:text="${task.title}"></strong> - <span th:text="${task.description}"></span> - <span
+            th:text="${task.status.getDisplayName()}"></span>
+    </li>
 </ul>
+
+
+<button id="openModal">Создать задачу</button>
+
+<!-- Модальное окно -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Новая задача</h2>
+        <form th:action="@{/tasks/{userId}/{date}(userId=${userId}, date=${date})}" method="post">
+            <label>Название:</label>
+            <input type="text" name="title" required> <br><br>
+
+            <label>Описание:</label>
+            <textarea name="description" required></textarea> <br><br>
+
+            <label>Статус:</label>
+            <select name="status">
+                <option th:each="status : ${T(com.petproject.tasks.entity.TaskStatus).values()}"
+                        th:value="${status.name()}"
+                th:text="${status.displayName}"></option>
+            </select> <br><br>
+
+            <button type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        let modal = $("#taskModal");
+
+        $("#openModal").click(function () {
+            modal.show();
+        });
+
+        $(".close").click(function () {
+            modal.hide();
+        });
+
+        $(window).click(function (event) {
+            if (event.target === modal[0]) {
+                modal.hide();
+            }
+        });
+    });
+</script>
 
 <a th:href="@{/tasks/{userId}(userId=${userId})}">Назад к календарю</a>
 </body>
