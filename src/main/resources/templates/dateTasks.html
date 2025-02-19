@@ -35,18 +35,43 @@
 <body>
 <h2>Задачи на <span th:text="${date}"></span></h2>
 
-<ul>
-    <li th:each="task : ${tasks}">
-        <strong th:text="${task.title}"></strong> - <span th:text="${task.description}"></span> - <span
-            th:text="${task.status.getDisplayName()}"></span>
-    </li>
-</ul>
+<!-- Кнопка для создания задачи -->
+<button id="openNewTaskModal">Создать задачу</button>
 
+<!-- Список задач -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Статус</th>
+        <th>Дата</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.title}"></td>
+        <td th:text="${task.description}"></td>
+        <td th:text="${task.status.displayName}"></td>
+        <td th:text="${task.creationDate}"></td>
+        <td>
+            <!-- Кнопка "Изменить" с данными -->
+            <button class="openUpdateModal"
+                    th:data-id="${task.id}"
+                    th:data-title="${task.title}"
+                    th:data-description="${task.description}"
+                    th:data-status="${task.status.name()}"
+                    th:data-date="${task.creationDate}">
+                Изменить
+            </button>
+        </td>
+    </tr>
+    </tbody>
+</table>
 
-<button id="openModal">Создать задачу</button>
-
-<!-- Модальное окно -->
-<div id="taskModal" class="modal">
+<!-- Модальное окно для создания задачи -->
+<div id="newTaskModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Новая задача</h2>
@@ -61,30 +86,90 @@
             <select name="status">
                 <option th:each="status : ${T(com.petproject.tasks.entity.TaskStatus).values()}"
                         th:value="${status.name()}"
-                th:text="${status.displayName}"></option>
+                        th:text="${status.displayName}"></option>
             </select> <br><br>
+
+            <label>Дата:</label>
+            <input type="date" name="date" th:value="${date}" required> <br><br>
 
             <button type="submit">Сохранить</button>
         </form>
     </div>
 </div>
 
+<!-- Модальное окно для изменения задачи -->
+<div id="updateTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Редактировать задачу</h2>
+        <form id="updateTaskForm" th:action="@{/tasks/update/}" method="post">
+            <input type="hidden" name="taskId" id="updateTaskId">
+            <input type="hidden" name="userId" th:value="${userId}">
+
+            <label>Название:</label>
+            <input type="text" name="title" id="updateTaskTitle" required> <br><br>
+
+            <label>Описание:</label>
+            <textarea name="description" id="updateTaskDescription" required></textarea> <br><br>
+
+            <label>Статус:</label>
+            <select name="status" id="updateTaskStatus">
+                <option th:each="status : ${T(com.petproject.tasks.entity.TaskStatus).values()}"
+                        th:value="${status.name()}"
+                        th:text="${status.displayName}"></option>
+            </select> <br><br>
+
+            <label>Дата:</label>
+            <input type="date" name="creationDate" id="updateTaskDate" required> <br><br>
+
+            <button type="submit">Обновить</button>
+        </form>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
-        let modal = $("#taskModal");
+        let newTaskModal = $("#newTaskModal");
+        let updateTaskModal = $("#updateTaskModal");
 
-        $("#openModal").click(function () {
-            modal.show();
+        // Открытие модального окна для создания задачи
+        $("#openNewTaskModal").click(function () {
+            newTaskModal.show();
         });
 
+        // Закрытие модальных окон
         $(".close").click(function () {
-            modal.hide();
+            newTaskModal.hide();
+            updateTaskModal.hide();
         });
 
         $(window).click(function (event) {
-            if (event.target === modal[0]) {
-                modal.hide();
+            if ($(event.target).is(newTaskModal)) {
+                newTaskModal.hide();
             }
+            if ($(event.target).is(updateTaskModal)) {
+                updateTaskModal.hide();
+            }
+        });
+
+        // Открытие модального окна для редактирования задачи
+        $(".openUpdateModal").click(function () {
+            let taskId = $(this).data("id");
+            let title = $(this).data("title");
+            let description = $(this).data("description");
+            let status = $(this).data("status");
+            let date = $(this).data("date");
+
+            $("#updateTaskId").val(taskId);
+            $("#updateTaskTitle").val(title);
+            $("#updateTaskDescription").val(description);
+            $("#updateTaskStatus").val(status);
+            $("#updateTaskDate").val(date);
+
+            // Формируем правильный URL для обновления задачи
+            $("#updateTaskForm").attr("action", "/tasks/update/" + taskId);
+
+            updateTaskModal.show();
         });
     });
 </script>
