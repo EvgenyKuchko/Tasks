@@ -74,6 +74,14 @@
                 </button>
             </form>
         </td>
+        <td>
+            <form th:action="@{/tasks/complete/{taskId}(taskId=${task.id})}" method="post">
+                <input type="hidden" name="userId" th:value="${userId}">
+                <button type="submit" onclick="return confirm('Задача была выполнена?')">
+                    Выполнено
+                </button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

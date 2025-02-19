@@ -2,6 +2,7 @@ package com.petproject.tasks.service;
 
 import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.entity.Task;
+import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.transformer.TaskTransformer;
@@ -60,5 +61,10 @@ public class TaskService {
     @Transactional
     public void deleteTaskById(Long taskId) {
         taskRepository.deleteById(taskId);
+    }
+
+    @Transactional
+    public void changeTaskStatusToDone(Long taskId) {
+        taskRepository.changeTaskStatusToDone(taskId, TaskStatus.DONE);
     }
 }
