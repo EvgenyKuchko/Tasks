@@ -24,11 +24,7 @@ public class TaskService {
     @Autowired
     private TaskTransformer taskTransformer;
     @Autowired
-    private UserService userService;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private UserTransformer userTransformer;
 
     @Transactional
     public List<TaskDto> getTasksByUserId(Long userId) {
