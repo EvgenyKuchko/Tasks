@@ -23,10 +23,6 @@ import java.util.Map;
 public class TaskController {
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserTransformer userTransformer;
-    @Autowired
     private TaskService taskService;
     @Autowired
     private UserService userService;
@@ -73,8 +69,7 @@ public class TaskController {
     @PostMapping("/{userId}/{date}")
     public String addNewTask(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                              @PathVariable("userId") Long userId, @ModelAttribute TaskDto taskDto) {
-        taskDto.setCreationDate(date);
-        taskService.saveTask(taskDto, userId);
+        taskService.saveTaskByUserIdAndDate(taskDto, userId, date);
         return "redirect:/tasks/" + userId;
     }
 
