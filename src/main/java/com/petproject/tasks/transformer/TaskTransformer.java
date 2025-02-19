@@ -14,7 +14,6 @@ public class TaskTransformer implements Transformer<Task, TaskDto>{
                 .description(task.getDescription())
                 .status(task.getStatus())
                 .creationDate(task.getCreationDate())
-                .dueDate(task.getDueDate())
                 .build();
     }
 
@@ -26,7 +25,6 @@ public class TaskTransformer implements Transformer<Task, TaskDto>{
                 .description(taskDto.getDescription())
                 .status(taskDto.getStatus())
                 .creationDate(taskDto.getCreationDate())
-                .dueDate(taskDto.getDueDate())
                 .build();
     }
 }
