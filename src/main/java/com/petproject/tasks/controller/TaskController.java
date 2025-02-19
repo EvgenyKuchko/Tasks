@@ -79,4 +79,10 @@ public class TaskController {
         taskService.updateTask(taskId, taskDto);
         return "redirect:/tasks/" + userId;
     }
+
+    @PostMapping("/delete/{taskId}")
+    public String deleteTask(@RequestParam("userId") Long userId, @PathVariable("taskId") Long taskId) {
+        taskService.deleteTaskById(taskId);
+        return "redirect:/tasks/" + userId;
+    }
 }

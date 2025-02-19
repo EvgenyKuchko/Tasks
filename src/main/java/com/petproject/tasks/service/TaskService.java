@@ -60,4 +60,9 @@ public class TaskService {
         task.setCreationDate(taskDto.getCreationDate());
         taskRepository.save(task);
     }
+
+    @Transactional
+    public void deleteTaskById(Long taskId) {
+        taskRepository.deleteById(taskId);
+    }
 }
