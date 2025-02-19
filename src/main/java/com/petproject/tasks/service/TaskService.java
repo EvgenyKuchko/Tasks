@@ -24,11 +24,7 @@ public class TaskService {
     @Autowired
     private TaskTransformer taskTransformer;
     @Autowired
-    private UserService userService;
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private UserTransformer userTransformer;
 
     @Transactional
     public List<TaskDto> getTasksByUserId(Long userId) {
@@ -59,5 +55,10 @@ public class TaskService {
         task.setStatus(taskDto.getStatus());
         task.setCreationDate(taskDto.getCreationDate());
         taskRepository.save(task);
+    }
+
+    @Transactional
+    public void deleteTaskById(Long taskId) {
+        taskRepository.deleteById(taskId);
     }
 }

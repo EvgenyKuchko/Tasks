@@ -66,6 +66,14 @@
                 Изменить
             </button>
         </td>
+        <td>
+            <form th:action="@{/tasks/delete/{taskId}(taskId=${task.id})}" method="post">
+                <input type="hidden" name="userId" th:value="${userId}">
+                <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить задачу?')">
+                    Удалить
+                </button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>
