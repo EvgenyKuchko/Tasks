@@ -6,11 +6,14 @@ import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.transformer.TaskTransformer;
 import com.petproject.tasks.transformer.UserTransformer;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,10 +38,26 @@ public class TaskService {
     }
 
     @Transactional
-    public void saveTask(TaskDto taskDto, Long userId) {
+    public void saveTaskByUserIdAndDate(TaskDto taskDto, Long userId, LocalDate date) {
+        taskDto.setCreationDate(date);
         Task task = taskTransformer.transform(taskDto);
- //       task.setUser(userTransformer.transform(userService.getUserById(userId)));
         task.setUser(userRepository.getReferenceById(userId));
+        taskRepository.save(task);
+    }
+
+    @Transactional
+    public Task findTaskById(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " is not found"));
+    }
+
+    @Transactional
+    public void updateTask(Long taskId, TaskDto taskDto) {
+        Task task = findTaskById(taskId);
+        task.setTitle(taskDto.getTitle());
+        task.setDescription(taskDto.getDescription());
+        task.setStatus(taskDto.getStatus());
+        task.setCreationDate(taskDto.getCreationDate());
         taskRepository.save(task);
     }
 }

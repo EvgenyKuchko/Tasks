@@ -2,32 +2,26 @@ package com.petproject.tasks.controller;
 
 import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
-import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.service.TaskService;
 import com.petproject.tasks.service.UserService;
-import com.petproject.tasks.transformer.TaskTransformer;
 import com.petproject.tasks.transformer.UserTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("tasks")
 public class TaskController {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserTransformer userTransformer;
     @Autowired
     private TaskService taskService;
     @Autowired
@@ -69,17 +63,20 @@ public class TaskController {
                 .filter(t -> t.getCreationDate().equals(date))
                 .toList();
         model.addAttribute("tasks", tasksByDate);
-
         return "dateTasks";
     }
 
     @PostMapping("/{userId}/{date}")
     public String addNewTask(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                              @PathVariable("userId") Long userId, @ModelAttribute TaskDto taskDto) {
-        taskDto.setCreationDate(date);
-        taskService.saveTask(taskDto, userId);
+        taskService.saveTaskByUserIdAndDate(taskDto, userId, date);
         return "redirect:/tasks/" + userId;
     }
 
-
+    @PostMapping("/update/{taskId}")
+    public String updateTask(@PathVariable("taskId") Long taskId, @ModelAttribute TaskDto taskDto,
+                             @RequestParam("userId") Long userId) {
+        taskService.updateTask(taskId, taskDto);
+        return "redirect:/tasks/" + userId;
+    }
 }
