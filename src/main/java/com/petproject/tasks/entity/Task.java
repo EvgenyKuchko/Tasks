@@ -18,7 +18,7 @@ public class Task implements EntityObj{
     private Long id;
     private String title;
     private String description;
-    private LocalDate creationDate;
+    private LocalDate date;
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
     @ManyToOne

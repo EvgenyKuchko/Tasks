@@ -54,7 +54,7 @@
         <td th:text="${task.title}"></td>
         <td th:text="${task.description}"></td>
         <td th:text="${task.status.displayName}"></td>
-        <td th:text="${task.creationDate}"></td>
+        <td th:text="${task.date}"></td>
         <td>
             <!-- Кнопка "Изменить" с данными -->
             <button class="openUpdateModal"
@@ -62,7 +62,7 @@
                     th:data-title="${task.title}"
                     th:data-description="${task.description}"
                     th:data-status="${task.status.name()}"
-                    th:data-date="${task.creationDate}">
+                    th:data-date="${task.date}">
                 Изменить
             </button>
         </td>
@@ -78,7 +78,15 @@
             <form th:action="@{/tasks/complete/{taskId}(taskId=${task.id})}" method="post">
                 <input type="hidden" name="userId" th:value="${userId}">
                 <button type="submit" onclick="return confirm('Задача была выполнена?')">
-                    Выполнено
+                    Выполнить
+                </button>
+            </form>
+        </td>
+        <td>
+            <form th:action="@{/tasks/canceled/{taskId}(taskId=${task.id})}" method="post">
+                <input type="hidden" name="userId" th:value="${userId}">
+                <button type="submit" onclick="return confirm('Вы действительно хотите отменить задачу?')">
+                    Отменить
                 </button>
             </form>
         </td>
@@ -97,13 +105,6 @@
 
             <label>Описание:</label>
             <textarea name="description" required></textarea> <br><br>
-
-            <label>Статус:</label>
-            <select name="status">
-                <option th:each="status : ${T(com.petproject.tasks.entity.TaskStatus).values()}"
-                        th:value="${status.name()}"
-                        th:text="${status.displayName}"></option>
-            </select> <br><br>
 
             <label>Дата:</label>
             <input type="date" name="date" th:value="${date}" required> <br><br>
@@ -128,15 +129,8 @@
             <label>Описание:</label>
             <textarea name="description" id="updateTaskDescription" required></textarea> <br><br>
 
-            <label>Статус:</label>
-            <select name="status" id="updateTaskStatus">
-                <option th:each="status : ${T(com.petproject.tasks.entity.TaskStatus).values()}"
-                        th:value="${status.name()}"
-                        th:text="${status.displayName}"></option>
-            </select> <br><br>
-
             <label>Дата:</label>
-            <input type="date" name="creationDate" id="updateTaskDate" required> <br><br>
+            <input type="date" name="date" id="updateTaskDate" required> <br><br>
 
             <button type="submit">Обновить</button>
         </form>

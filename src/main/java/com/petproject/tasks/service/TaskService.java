@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,8 +34,16 @@ public class TaskService {
     }
 
     @Transactional
+    public List<TaskDto> getTasksByUserIdAndDate(Long userId, LocalDate localDate) {
+        return taskRepository.getTasksByUserIdAndDate(userId, localDate).stream()
+                .map(x -> taskTransformer.transform(x))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public void saveTaskByUserIdAndDate(TaskDto taskDto, Long userId, LocalDate date) {
-        taskDto.setCreationDate(date);
+        taskDto.setDate(date);
+        taskDto.setStatus(TaskStatus.ACTIVE);
         Task task = taskTransformer.transform(taskDto);
         task.setUser(userRepository.getReferenceById(userId));
         taskRepository.save(task);
@@ -49,12 +56,33 @@ public class TaskService {
     }
 
     @Transactional
+    public List<Map<String, String>> getEvents(Long userId) {
+        List<Map<String, String>> events = new ArrayList<>();
+
+        List<TaskDto> tasks = getTasksByUserId(userId).stream()
+                .filter(taskDto -> taskDto.getStatus().equals(TaskStatus.ACTIVE))
+                .toList();
+        Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
+
+        for (TaskDto task : tasks) {
+            TASKS.computeIfAbsent(task.getDate(), k -> new ArrayList<>()).add(task);
+        }
+
+        for (Map.Entry<LocalDate, List<TaskDto>> entry : TASKS.entrySet()) {
+            Map<String, String> event = new HashMap<>();
+            event.put("title", "🔹 " + entry.getValue().size() + " задачи");
+            event.put("start", entry.getKey().toString());
+            events.add(event);
+        }
+        return events;
+    }
+
+    @Transactional
     public void updateTask(Long taskId, TaskDto taskDto) {
         Task task = findTaskById(taskId);
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
-        task.setStatus(taskDto.getStatus());
-        task.setCreationDate(taskDto.getCreationDate());
+        task.setDate(taskDto.getDate());
         taskRepository.save(task);
     }
 
@@ -64,7 +92,7 @@ public class TaskService {
     }
 
     @Transactional
-    public void changeTaskStatusToDone(Long taskId) {
-        taskRepository.changeTaskStatusToDone(taskId, TaskStatus.DONE);
+    public void changeTaskStatus(Long taskId, TaskStatus taskStatus) {
+        taskRepository.changeTaskStatusToDone(taskId, taskStatus);
     }
 }
