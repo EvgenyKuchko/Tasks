@@ -37,6 +37,7 @@ public class TaskService {
     @Transactional
     public void saveTaskByUserIdAndDate(TaskDto taskDto, Long userId, LocalDate date) {
         taskDto.setCreationDate(date);
+        taskDto.setStatus(TaskStatus.ACTIVE);
         Task task = taskTransformer.transform(taskDto);
         task.setUser(userRepository.getReferenceById(userId));
         taskRepository.save(task);
