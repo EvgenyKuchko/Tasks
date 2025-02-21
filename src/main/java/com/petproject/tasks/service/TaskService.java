@@ -13,8 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +46,26 @@ public class TaskService {
     public Task findTaskById(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " is not found"));
+    }
+
+    @Transactional
+    public List<Map<String, String>> getEvents(Long userId) {
+        List<Map<String, String>> events = new ArrayList<>();
+
+        List<TaskDto> tasks = getTasksByUserId(userId);
+        Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
+
+        for (TaskDto task : tasks) {
+            TASKS.computeIfAbsent(task.getCreationDate(), k -> new ArrayList<>()).add(task);
+        }
+
+        for (Map.Entry<LocalDate, List<TaskDto>> entry : TASKS.entrySet()) {
+            Map<String, String> event = new HashMap<>();
+            event.put("title", "🔹 " + entry.getValue().size() + " задачи");
+            event.put("start", entry.getKey().toString());
+            events.add(event);
+        }
+        return events;
     }
 
     @Transactional

@@ -2,10 +2,8 @@ package com.petproject.tasks.controller;
 
 import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
-import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.service.TaskService;
 import com.petproject.tasks.service.UserService;
-import com.petproject.tasks.transformer.UserTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -29,28 +27,12 @@ public class TaskController {
 
     @GetMapping("/{userId}")
     public String showCalendarPage(@PathVariable("userId") Long userId, Model model) {
-
         UserDto userDto = userService.getUserById(userId);
         model.addAttribute("firstName", userDto.getFirstName());
         model.addAttribute("userId", userDto.getId());
-        List<Map<String, String>> events = new ArrayList<>();
-
-        List<TaskDto> tasks = taskService.getTasksByUserId(userDto.getId());
-        Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
-
-        for (TaskDto task : tasks) {
-            TASKS.computeIfAbsent(task.getCreationDate(), k -> new ArrayList<>()).add(task);
-        }
-
-        for (Map.Entry<LocalDate, List<TaskDto>> entry : TASKS.entrySet()) {
-            Map<String, String> event = new HashMap<>();
-            event.put("title", "🔹 " + entry.getValue().size() + " задачи");
-            event.put("start", entry.getKey().toString());
-            events.add(event);
-        }
+        List<Map<String, String>> events = taskService.getEvents(userId);
 
         model.addAttribute("events", events);
-
         return "calendar";
     }
 
