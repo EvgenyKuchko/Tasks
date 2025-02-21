@@ -52,7 +52,9 @@ public class TaskService {
     public List<Map<String, String>> getEvents(Long userId) {
         List<Map<String, String>> events = new ArrayList<>();
 
-        List<TaskDto> tasks = getTasksByUserId(userId);
+        List<TaskDto> tasks = getTasksByUserId(userId).stream()
+                .filter(taskDto -> taskDto.getStatus().equals(TaskStatus.ACTIVE))
+                .toList();
         Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
 
         for (TaskDto task : tasks) {
