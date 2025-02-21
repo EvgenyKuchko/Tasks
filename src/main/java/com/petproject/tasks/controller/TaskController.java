@@ -2,6 +2,7 @@ package com.petproject.tasks.controller;
 
 import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
+import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.service.TaskService;
 import com.petproject.tasks.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class TaskController {
         return "calendar";
     }
 
+    //method in service
     @GetMapping("/{userId}/{date}")
     public String showTasksListByDate(@PathVariable("userId") Long userId,
                                       @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -70,7 +72,13 @@ public class TaskController {
 
     @PostMapping("/complete/{taskId}")
     public String completeTask(@RequestParam("userId") Long userId, @PathVariable("taskId") Long taskId) {
-        taskService.changeTaskStatusToDone(taskId);
+        taskService.changeTaskStatus(taskId, TaskStatus.DONE);
+        return "redirect:/tasks/" + userId;
+    }
+
+    @PostMapping("/canceled/{taskId}")
+    public String canceledTask(@RequestParam("userId") Long userId, @PathVariable("taskId") Long taskId) {
+        taskService.changeTaskStatus(taskId, TaskStatus.CANCELED);
         return "redirect:/tasks/" + userId;
     }
 }

@@ -75,7 +75,6 @@ public class TaskService {
         Task task = findTaskById(taskId);
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
-        task.setStatus(taskDto.getStatus());
         task.setCreationDate(taskDto.getCreationDate());
         taskRepository.save(task);
     }
@@ -86,7 +85,7 @@ public class TaskService {
     }
 
     @Transactional
-    public void changeTaskStatusToDone(Long taskId) {
-        taskRepository.changeTaskStatusToDone(taskId, TaskStatus.DONE);
+    public void changeTaskStatus(Long taskId, TaskStatus taskStatus) {
+        taskRepository.changeTaskStatusToDone(taskId, taskStatus);
     }
 }
