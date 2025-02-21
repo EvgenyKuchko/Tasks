@@ -13,7 +13,7 @@ public class TaskTransformer implements Transformer<Task, TaskDto>{
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .status(task.getStatus())
-                .creationDate(task.getCreationDate())
+                .date(task.getDate())
                 .build();
     }
 
@@ -24,7 +24,7 @@ public class TaskTransformer implements Transformer<Task, TaskDto>{
                 .title(taskDto.getTitle())
                 .description(taskDto.getDescription())
                 .status(taskDto.getStatus())
-                .creationDate(taskDto.getCreationDate())
+                .date(taskDto.getDate())
                 .build();
     }
 }

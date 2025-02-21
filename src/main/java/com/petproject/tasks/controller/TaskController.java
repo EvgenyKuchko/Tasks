@@ -42,11 +42,8 @@ public class TaskController {
     public String showTasksListByDate(@PathVariable("userId") Long userId,
                                       @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                       Model model) {
-        List<TaskDto> tasks = taskService.getTasksByUserId(userId);
-        List<TaskDto> tasksByDate = tasks.stream()
-                .filter(t -> t.getCreationDate().equals(date))
-                .toList();
-        model.addAttribute("tasks", tasksByDate);
+        List<TaskDto> tasks = taskService.getTasksByUserIdAndDate(userId, date);
+        model.addAttribute("tasks", tasks);
         return "dateTasks";
     }
 

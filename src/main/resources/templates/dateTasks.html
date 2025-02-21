@@ -54,7 +54,7 @@
         <td th:text="${task.title}"></td>
         <td th:text="${task.description}"></td>
         <td th:text="${task.status.displayName}"></td>
-        <td th:text="${task.creationDate}"></td>
+        <td th:text="${task.date}"></td>
         <td>
             <!-- Кнопка "Изменить" с данными -->
             <button class="openUpdateModal"
@@ -62,7 +62,7 @@
                     th:data-title="${task.title}"
                     th:data-description="${task.description}"
                     th:data-status="${task.status.name()}"
-                    th:data-date="${task.creationDate}">
+                    th:data-date="${task.date}">
                 Изменить
             </button>
         </td>
@@ -130,7 +130,7 @@
             <textarea name="description" id="updateTaskDescription" required></textarea> <br><br>
 
             <label>Дата:</label>
-            <input type="date" name="creationDate" id="updateTaskDate" required> <br><br>
+            <input type="date" name="date" id="updateTaskDate" required> <br><br>
 
             <button type="submit">Обновить</button>
         </form>

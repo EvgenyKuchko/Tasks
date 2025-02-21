@@ -34,8 +34,15 @@ public class TaskService {
     }
 
     @Transactional
+    public List<TaskDto> getTasksByUserIdAndDate(Long userId, LocalDate localDate) {
+        return taskRepository.getTasksByUserIdAndDate(userId, localDate).stream()
+                .map(x -> taskTransformer.transform(x))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public void saveTaskByUserIdAndDate(TaskDto taskDto, Long userId, LocalDate date) {
-        taskDto.setCreationDate(date);
+        taskDto.setDate(date);
         taskDto.setStatus(TaskStatus.ACTIVE);
         Task task = taskTransformer.transform(taskDto);
         task.setUser(userRepository.getReferenceById(userId));
@@ -58,7 +65,7 @@ public class TaskService {
         Map<LocalDate, List<TaskDto>> TASKS = new HashMap<>();
 
         for (TaskDto task : tasks) {
-            TASKS.computeIfAbsent(task.getCreationDate(), k -> new ArrayList<>()).add(task);
+            TASKS.computeIfAbsent(task.getDate(), k -> new ArrayList<>()).add(task);
         }
 
         for (Map.Entry<LocalDate, List<TaskDto>> entry : TASKS.entrySet()) {
@@ -75,7 +82,7 @@ public class TaskService {
         Task task = findTaskById(taskId);
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
-        task.setCreationDate(taskDto.getCreationDate());
+        task.setDate(taskDto.getDate());
         taskRepository.save(task);
     }
 
