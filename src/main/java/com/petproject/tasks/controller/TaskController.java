@@ -12,10 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("tasks")
@@ -37,7 +34,6 @@ public class TaskController {
         return "calendar";
     }
 
-    //method in service
     @GetMapping("/{userId}/{date}")
     public String showTasksListByDate(@PathVariable("userId") Long userId,
                                       @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -78,4 +74,14 @@ public class TaskController {
         taskService.changeTaskStatus(taskId, TaskStatus.CANCELED);
         return "redirect:/tasks/" + userId;
     }
+
+    @GetMapping("/{userId}/search")
+    public String searchTasks(@PathVariable("userId") Long userId,
+                              @RequestParam(value = "query", required = false) String keyword, Model model) {
+        List<TaskDto> searchResult = (keyword != null && !keyword.isEmpty()) ? taskService.searchTasks(userId, keyword) : Collections.emptyList();
+        model.addAttribute("tasks", searchResult);
+        model.addAttribute("searchPerformed", true);
+        return "search";
+    }
+
 }

@@ -95,4 +95,11 @@ public class TaskService {
     public void changeTaskStatus(Long taskId, TaskStatus taskStatus) {
         taskRepository.changeTaskStatusToDone(taskId, taskStatus);
     }
+
+    @Transactional
+    public List<TaskDto> searchTasks(Long userId, String keyword) {
+        return taskRepository.searchTasks(userId, keyword).stream()
+                .map(x -> taskTransformer.transform(x))
+                .collect(Collectors.toList());
+    }
 }

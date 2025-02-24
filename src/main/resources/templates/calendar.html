@@ -14,6 +14,10 @@
     <input hidden type="submit" value="Sign Out"/>
 </form>
 
+<a th:href="@{'/tasks/' + ${userId} + '/search'}">
+    <button>🔍 Поиск задач</button>
+</a>
+
 <div id="calendar"></div>
 
 <script th:inline="javascript">
