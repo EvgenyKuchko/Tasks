@@ -24,6 +24,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register", "/login", "/css/**").permitAll() // Разрешаем доступ
+                        .requestMatchers("/admin", "/admin/**").hasAuthority("ADMIN") // только для админа
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
