@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -64,5 +66,12 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto getUserByUsername(String username) {
         return userTransformer.transform(userRepository.findByUsername(username));
+    }
+
+    @Transactional
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(x -> userTransformer.transform(x))
+                .collect(Collectors.toList());
     }
 }
