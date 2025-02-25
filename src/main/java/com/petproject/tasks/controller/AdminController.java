@@ -28,6 +28,7 @@ public class AdminController {
     public String showUsersPage(@RequestParam(value = "username", required = false) String username,
                                 @RequestParam(value = "role", required = false) String role,
                                 Model model) {
+        UserDto userDto = new UserDto();
         List<UserDto> users = userService.getAllUsers();
         List<String> allRoles = new ArrayList<>();
         allRoles.add(UserRole.ADMIN.name());
@@ -48,7 +49,14 @@ public class AdminController {
 
         model.addAttribute("users", users);
         model.addAttribute("allRoles", allRoles);
+        model.addAttribute("userDto", userDto);
         return "users";
+    }
+
+    @PostMapping("/users/create")
+    public String addNewUser(@ModelAttribute UserDto userDto) {
+        userService.registerUser(userDto);
+        return "redirect:/admin/users";
     }
 
     @PostMapping("/users/{userId}")
