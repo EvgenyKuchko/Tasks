@@ -74,4 +74,18 @@ public class UserService implements UserDetailsService {
                 .map(x -> userTransformer.transform(x))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void addOrRemoveAdminRole(Long userId) {
+        User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        Set<UserRole> newRoles = new HashSet<>(user.getRoles());
+        if(newRoles.contains(UserRole.ADMIN)) {
+            newRoles.remove(UserRole.ADMIN);
+        }else {
+            newRoles.add(UserRole.ADMIN);
+        }
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
 }
