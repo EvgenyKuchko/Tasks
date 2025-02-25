@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
-        if(userDto == null) {
+        if (userDto == null) {
             throw new UsernameNotFoundException("User not found");
         }
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -78,14 +78,19 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void addOrRemoveAdminRole(Long userId) {
         User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
         Set<UserRole> newRoles = new HashSet<>(user.getRoles());
-        if(newRoles.contains(UserRole.ADMIN)) {
+        if (newRoles.contains(UserRole.ADMIN)) {
             newRoles.remove(UserRole.ADMIN);
-        }else {
+        } else {
             newRoles.add(UserRole.ADMIN);
         }
         user.setRoles(newRoles);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserByUserId(Long userId) {
+        userRepository.deleteById(userId);
     }
 }

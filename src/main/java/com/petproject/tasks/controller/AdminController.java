@@ -56,4 +56,10 @@ public class AdminController {
         userService.addOrRemoveAdminRole(userId);
         return "redirect:/admin/users";
     }
+
+    @PostMapping("/users/{userId}/delete")
+    public String deleteUser(@PathVariable("userId") Long userId) {
+        userService.deleteUserByUserId(userId);
+        return "redirect:/admin/users";
+    }
 }

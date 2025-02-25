@@ -64,9 +64,13 @@
       <a th:href="@{/users/{id}(id=${user.id})}">🔍 Просмотр</a>
       <a th:href="@{/users/edit/{id}(id=${user.id})}">✏ Редактировать</a>
       <form th:action="@{/admin/users/{userId}(userId=${user.id})}" method="post">
-<!--        <input type="hidden" name="userId" th:value="${userId}">-->
         <button type="submit" onclick="return confirm('Удалить\Добавить роль Администратора для этого пользователя?')">
           Админ
+        </button>
+      </form>
+      <form th:action="@{/admin/users/{userId}/delete(userId=${user.id})}" method="post">
+        <button type="submit" onclick="return confirm('Удалить пользователя?')">
+          Удалить
         </button>
       </form>
     </td>
