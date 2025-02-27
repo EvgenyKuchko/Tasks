@@ -49,6 +49,15 @@
     <label for="keyword">Поиск по ключевому слову:</label>
     <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
 
+    <label for="username">Фильтр по username:</label>
+    <select id="username" name="username">
+        <option value="">Все</option>
+        <option th:each="username : ${usernames}"
+                th:value="${username}"
+                th:text="${username}"
+                th:selected="${param.username == username}"></option>
+    </select>
+
     <button type="submit">🔍 Поиск</button>
     <a href="/admin/tasks">
         <button type="button">🔄 Сбросить</button>

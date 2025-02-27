@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -22,9 +23,12 @@ public class AdminTasksController {
 
     @GetMapping("/tasks")
     public String showAdminTasksPage(Model model, @RequestParam(value = "keyword", required = false) String keyword,
-                                     @RequestParam(value = "userId", required = false) Long userId,
+                                     @RequestParam(value = "username", required = false) String username,
                                      @RequestParam(value = "date", required = false) LocalDate date) {
         List<TaskDto> tasks = taskService.findAllTasks();
+        Set<String> usernames = tasks.stream()
+                .map(TaskDto::getUsername)
+                .collect(Collectors.toSet());
 
         if (keyword != null && !keyword.isEmpty()) {
             String lowerKeyword = keyword.toLowerCase();
@@ -34,7 +38,14 @@ public class AdminTasksController {
                     .collect(Collectors.toList());
         }
 
+        if(username != null && !username.isEmpty()) {
+            tasks = tasks.stream()
+                    .filter(taskDto -> taskDto.getUsername().equals(username))
+                    .collect(Collectors.toList());
+        }
+
         TaskDto taskDto = new TaskDto();
+        model.addAttribute("usernames", usernames);
         model.addAttribute("task", taskDto);
         model.addAttribute("tasks", tasks);
         return "tasks";
