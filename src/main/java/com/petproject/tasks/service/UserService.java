@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -46,7 +48,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
-        if(userDto == null) {
+        if (userDto == null) {
             throw new UsernameNotFoundException("User not found");
         }
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -64,5 +66,31 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto getUserByUsername(String username) {
         return userTransformer.transform(userRepository.findByUsername(username));
+    }
+
+    @Transactional
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(x -> userTransformer.transform(x))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void addOrRemoveAdminRole(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Set<UserRole> newRoles = new HashSet<>(user.getRoles());
+        if (newRoles.contains(UserRole.ADMIN)) {
+            newRoles.remove(UserRole.ADMIN);
+        } else {
+            newRoles.add(UserRole.ADMIN);
+        }
+        user.setRoles(newRoles);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserByUserId(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
