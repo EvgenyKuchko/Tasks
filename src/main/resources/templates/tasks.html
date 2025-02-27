@@ -45,6 +45,16 @@
 <body>
 <h2>Список задач</h2>
 
+<form method="get" action="/admin/tasks">
+    <label for="keyword">Поиск по ключевому слову:</label>
+    <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
+
+    <button type="submit">🔍 Поиск</button>
+    <a href="/admin/tasks">
+        <button type="button">🔄 Сбросить</button>
+    </a>
+</form>
+
 <table>
     <thead>
     <tr>
