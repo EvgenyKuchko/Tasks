@@ -58,6 +58,9 @@
                 th:selected="${param.username == username}"></option>
     </select>
 
+    <label for="date">Фильтр по дате:</label>
+    <input type="date" id="date" name="date" th:value="${param.date}">
+
     <button type="submit">🔍 Поиск</button>
     <a href="/admin/tasks">
         <button type="button">🔄 Сбросить</button>

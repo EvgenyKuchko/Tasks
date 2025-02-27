@@ -44,6 +44,12 @@ public class AdminTasksController {
                     .collect(Collectors.toList());
         }
 
+        if (date != null) {
+            tasks = tasks.stream()
+                    .filter(task -> task.getDate().equals(date))
+                    .collect(Collectors.toList());
+        }
+
         TaskDto taskDto = new TaskDto();
         model.addAttribute("usernames", usernames);
         model.addAttribute("task", taskDto);
