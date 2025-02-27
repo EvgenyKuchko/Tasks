@@ -70,4 +70,10 @@ public class AdminController {
         userService.deleteUserByUserId(userId);
         return "redirect:/admin/users";
     }
+
+    @PostMapping("/users/{userId}/update")
+    public String updateUser(@PathVariable("userId") Long userId,@ModelAttribute UserDto userDto) {
+        userService.updateUser(userId, userDto);
+        return "redirect:/admin/users";
+    }
 }

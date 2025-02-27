@@ -93,4 +93,20 @@ public class UserService implements UserDetailsService {
     public void deleteUserByUserId(Long userId) {
         userRepository.deleteById(userId);
     }
+
+    @Transactional
+    public void updateUser(Long userId, UserDto userDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(userDto.getFirstName() != null && !userDto.getFirstName().equals(user.getFirstName())) {
+            user.setFirstName(userDto.getFirstName());
+        }
+        if(userDto.getUsername() != null && !userDto.getUsername().equals(user.getUsername())) {
+            user.setUsername(userDto.getUsername());
+        }
+        if(userDto.getPassword() != null && !userDto.getPassword().equals(user.getPassword())) {
+            user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+        }
+        userRepository.save(user);
+    }
 }
