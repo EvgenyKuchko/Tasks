@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Список задач</title>
+  <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    th, td {
+        border: 1px solid black;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+      .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+  }
+  .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 30%;
+  }
+  .close {
+      float: right;
+      font-size: 28px;
+      cursor: pointer;
+  }
+  </style>
+</head>
+<body>
+<h2>Список задач</h2>
+
+<form method="get" action="/admin/tasks">
+    <label for="keyword">Поиск по ключевому слову:</label>
+    <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
+
+    <label for="username">Фильтр по username:</label>
+    <select id="username" name="username">
+        <option value="">Все</option>
+        <option th:each="username : ${usernames}"
+                th:value="${username}"
+                th:text="${username}"
+                th:selected="${param.username == username}"></option>
+    </select>
+
+    <label for="date">Фильтр по дате:</label>
+    <input type="date" id="date" name="date" th:value="${param.date}">
+
+    <button type="submit">🔍 Поиск</button>
+    <a href="/admin/tasks">
+        <button type="button">🔄 Сбросить</button>
+    </a>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Дата</th>
+        <th>Статус</th>
+        <th>Username</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.id}"></td>
+        <td th:text="${task.title}"></td>
+        <td th:text="${task.description}"></td>
+        <td th:text="${task.date}"></td>
+        <td th:text="${task.status.displayName}"></td>
+        <th th:text="${task.username}"></th>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

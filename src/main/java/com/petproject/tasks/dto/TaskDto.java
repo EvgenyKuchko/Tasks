@@ -17,4 +17,5 @@ public class TaskDto implements Dto {
     private String description;
     private LocalDate date;
     private TaskStatus status;
+    private String username;
 }

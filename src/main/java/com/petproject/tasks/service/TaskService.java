@@ -102,4 +102,11 @@ public class TaskService {
                 .map(x -> taskTransformer.transform(x))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<TaskDto> findAllTasks() {
+        return taskRepository.findAll().stream()
+                .map(x -> taskTransformer.transform(x))
+                .collect(Collectors.toList());
+    }
 }
