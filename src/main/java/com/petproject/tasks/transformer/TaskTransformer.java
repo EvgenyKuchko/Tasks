@@ -14,6 +14,7 @@ public class TaskTransformer implements Transformer<Task, TaskDto>{
                 .description(task.getDescription())
                 .status(task.getStatus())
                 .date(task.getDate())
+                .username(task.getUser().getUsername())
                 .build();
     }
 
