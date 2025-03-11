@@ -1,8 +1,10 @@
 package com.petproject.tasks.controller;
 
 import com.petproject.tasks.dto.TaskDto;
+import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.service.TaskService;
+import com.petproject.tasks.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,13 +23,16 @@ public class AdminTasksController {
     @Autowired
     private TaskService taskService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/tasks")
     public String showAdminTasksPage(Model model, @RequestParam(value = "keyword", required = false) String keyword,
                                      @RequestParam(value = "username", required = false) String username,
                                      @RequestParam(value = "date", required = false) LocalDate date) {
         List<TaskDto> tasks = taskService.findAllTasks();
-        Set<String> usernames = tasks.stream()
-                .map(TaskDto::getUsername)
+        Set<String> usernames = userService.getAllUsers().stream()
+                .map(UserDto::getUsername)
                 .collect(Collectors.toSet());
 
         if (keyword != null && !keyword.isEmpty()) {
@@ -50,9 +55,8 @@ public class AdminTasksController {
                     .collect(Collectors.toList());
         }
 
-        TaskDto taskDto = new TaskDto();
         model.addAttribute("usernames", usernames);
-        model.addAttribute("task", taskDto);
+        model.addAttribute("task", new TaskDto());
         model.addAttribute("tasks", tasks);
         return "tasks";
     }
@@ -79,6 +83,12 @@ public class AdminTasksController {
     @PostMapping("/tasks/{taskId}/delete")
     public String deleteTask(@PathVariable("taskId") Long taskId) {
         taskService.deleteTaskById(taskId);
+        return "redirect:/admin/tasks";
+    }
+
+    @PostMapping("/tasks/create")
+    public String createNewTask(@ModelAttribute TaskDto taskDto) {
+        taskService.saveNewTask(taskDto);
         return "redirect:/admin/tasks";
     }
 }

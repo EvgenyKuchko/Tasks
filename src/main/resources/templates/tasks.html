@@ -45,12 +45,42 @@
 <body>
 <h2>Список задач</h2>
 
+<button id="openTaskModal">Создать задачу</button>
+
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Создание новой задачи</h2>
+        <form id="taskForm" method="post" th:action="@{/admin/tasks/create}" th:object="${task}">
+            <label for="title">Название:</label>
+            <input type="text" id="title" th:field="*{title}" required>
+
+            <label for="description">Описание:</label>
+            <input type="text" id="description" th:field="*{description}" required>
+
+            <label for="date">Пароль:</label>
+            <input type="date" id="date" th:field="*{date}" required>
+
+            <label for="username">Назначить пользователю:</label>
+            <select id="username" th:field="*{username}" required>
+                <option value="">Выберите пользователя</option>
+                <option th:each="username : ${usernames}"
+                        th:value="${username}"
+                        th:text="${username}">
+                </option>
+            </select>
+
+            <button type="submit">Создать</button>
+        </form>
+    </div>
+</div>
+
 <form method="get" action="/admin/tasks">
     <label for="keyword">Поиск по ключевому слову:</label>
     <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
 
     <label for="username">Фильтр по username:</label>
-    <select id="username" name="username">
+    <select id="usrname" name="username">
         <option value="">Все</option>
         <option th:each="username : ${usernames}"
                 th:value="${username}"
@@ -59,7 +89,7 @@
     </select>
 
     <label for="date">Фильтр по дате:</label>
-    <input type="date" id="date" name="date" th:value="${param.date}">
+    <input type="date" id="dte" name="date" th:value="${param.date}">
 
     <button type="submit">🔍 Поиск</button>
     <a href="/admin/tasks">
@@ -143,6 +173,37 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // =========================
+        // Модальное окно создания задачи
+        // =========================
+        let taskModal = document.getElementById("taskModal");
+        let openTaskModalBtn = document.getElementById("openTaskModal");
+        let closeTaskModalBtn = taskModal.querySelector(".close");
+
+        openTaskModalBtn.addEventListener("click", function () {
+            // Очищаем поля перед открытием
+            document.getElementById("title").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("username").value = ""; // Сбрасываем выбор пользователя
+
+            taskModal.style.display = "block";
+        });
+
+        closeTaskModalBtn.addEventListener("click", function () {
+            taskModal.style.display = "none";
+        });
+
+        // Закрытие при клике вне модального окна создания
+        window.addEventListener("click", function (event) {
+            if (event.target === taskModal) {
+                taskModal.style.display = "none";
+            }
+        });
+
+        // =========================
+        // Модальное окно редактирования задачи
+        // =========================
         let updateTaskModal = document.getElementById("updateTaskModal");
         let closeUpdateTaskBtn = updateTaskModal.querySelector(".close");
 
@@ -153,6 +214,7 @@
                 let description = this.getAttribute("data-task-description");
                 let date = this.getAttribute("data-task-date");
                 let status = this.getAttribute("data-task-status");
+                let assignedUser = this.getAttribute("data-task-user"); // Получаем пользователя задачи
 
                 if (!taskId) {
                     console.error("Ошибка: отсутствует data-task-id у кнопки");
@@ -180,6 +242,22 @@
                     }
                     if (!found) {
                         console.warn(`Статус ${status} не найден в списке`);
+                    }
+                }
+
+                // Устанавливаем пользователя
+                let userSelect = document.getElementById("updateTaskUser");
+                if (userSelect) {
+                    let userFound = false;
+                    for (let option of userSelect.options) {
+                        if (option.value.trim() === assignedUser.trim()) {
+                            option.selected = true;
+                            userFound = true;
+                            break;
+                        }
+                    }
+                    if (!userFound) {
+                        console.warn(`Пользователь ${assignedUser} не найден в списке`);
                     }
                 }
 

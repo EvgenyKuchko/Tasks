@@ -108,4 +108,12 @@ public class TaskService {
                 .map(x -> taskTransformer.transform(x))
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void saveNewTask(TaskDto taskDto) {
+        taskDto.setStatus(TaskStatus.ACTIVE);
+        Task task = taskTransformer.transform(taskDto);
+        task.setUser(userRepository.findByUsername(taskDto.getUsername()));
+        taskRepository.save(task);
+    }
 }
