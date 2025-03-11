@@ -63,4 +63,10 @@ public class AdminTasksController {
         taskService.updateTask(taskId, taskDto);
         return "redirect:/admin/tasks";
     }
+
+    @PostMapping("/tasks/{taskId}/complete")
+    public String completeTask(@PathVariable("taskId") Long taskId) {
+        taskService.changeTaskStatus(taskId, TaskStatus.DONE);
+        return "redirect:/admin/tasks";
+    }
 }

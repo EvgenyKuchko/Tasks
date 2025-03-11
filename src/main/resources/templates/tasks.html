@@ -94,8 +94,14 @@
                     th:data-task-description="${task.description}"
                     th:data-task-status="${task.status}"
                     th:data-task-date="${task.date}">
-                Редактировать
+                <Редактировать></Редактировать>
             </button>
+
+            <form th:action="@{/admin/tasks/{taskId}/complete(taskId=${task.id})}" method="post">
+                <button type="submit" onclick="return confirm('Задача была выполнена?')">
+                    Выполнить
+                </button>
+            </form>
         </th>
     </tr>
     </tbody>
