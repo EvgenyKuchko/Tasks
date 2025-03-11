@@ -109,4 +109,9 @@ public class UserService implements UserDetailsService {
         }
         userRepository.save(user);
     }
+
+    @Transactional
+    public boolean existsUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }
