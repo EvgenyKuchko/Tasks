@@ -76,6 +76,7 @@
         <th>Дата</th>
         <th>Статус</th>
         <th>Username</th>
+        <th>Действия</th>
     </tr>
     </thead>
     <tbody>
@@ -86,8 +87,102 @@
         <td th:text="${task.date}"></td>
         <td th:text="${task.status.displayName}"></td>
         <th th:text="${task.username}"></th>
+        <th>
+            <button class="openUpdateModel"
+                    th:data-task-id="${task.id}"
+                    th:data-task-title="${task.title}"
+                    th:data-task-description="${task.description}"
+                    th:data-task-status="${task.status}"
+                    th:data-task-date="${task.date}">
+                Редактировать
+            </button>
+        </th>
     </tr>
     </tbody>
 </table>
+
+<div id="updateTaskModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Редактировать задачу</h2>
+        <form id="updateTaskForm" th:action="@{/admin/tasks/{taskId}/update(taskId=${task.id})}" method="post">
+            <input type="hidden" name="taskId" id="updateTaskId">
+
+            <label for="updateTaskTitle">Название:</label>
+            <input type="text" name="title" id="updateTaskTitle"> <br><br>
+
+            <label for="updateTaskDescription">Описание:</label>
+            <textarea name="description" id="updateTaskDescription"></textarea> <br><br>
+
+            <label for="updateTaskDate">Дата:</label>
+            <input type="date" name="date" id="updateTaskDate"> <br><br>
+
+            <button type="submit">Обновить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let updateTaskModal = document.getElementById("updateTaskModal");
+        let closeUpdateTaskBtn = updateTaskModal.querySelector(".close");
+
+        document.querySelectorAll(".openUpdateModel").forEach(button => {
+            button.addEventListener("click", function () {
+                let taskId = this.getAttribute("data-task-id");
+                let title = this.getAttribute("data-task-title");
+                let description = this.getAttribute("data-task-description");
+                let date = this.getAttribute("data-task-date");
+                let status = this.getAttribute("data-task-status");
+
+                if (!taskId) {
+                    console.error("Ошибка: отсутствует data-task-id у кнопки");
+                    return;
+                }
+
+                // Заполняем форму
+                document.getElementById("updateTaskId").value = taskId;
+                document.getElementById("updateTaskTitle").value = title;
+                document.getElementById("updateTaskDescription").value = description;
+                if (date) {
+                    document.getElementById("updateTaskDate").value = date;
+                }
+
+                // Устанавливаем статус
+                let statusSelect = document.getElementById("updateTaskStatus");
+                if (statusSelect) {
+                    let found = false;
+                    for (let option of statusSelect.options) {
+                        if (option.textContent.trim() === status.trim()) {
+                            option.selected = true;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        console.warn(`Статус ${status} не найден в списке`);
+                    }
+                }
+
+                // Обновляем action формы
+                document.getElementById("updateTaskForm").action = `/admin/tasks/${taskId}/update`;
+
+                // Открываем модальное окно
+                updateTaskModal.style.display = "block";
+            });
+        });
+
+        closeUpdateTaskBtn.onclick = function () {
+            updateTaskModal.style.display = "none";
+        };
+
+        window.addEventListener("click", function (event) {
+            if (event.target === updateTaskModal) {
+                updateTaskModal.style.display = "none";
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

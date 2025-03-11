@@ -6,7 +6,6 @@ import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.repository.TaskRepository;
 import com.petproject.tasks.repository.UserRepository;
 import com.petproject.tasks.transformer.TaskTransformer;
-import com.petproject.tasks.transformer.UserTransformer;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +92,7 @@ public class TaskService {
 
     @Transactional
     public void changeTaskStatus(Long taskId, TaskStatus taskStatus) {
-        taskRepository.changeTaskStatusToDone(taskId, taskStatus);
+        taskRepository.changeTaskStatus(taskId, taskStatus);
     }
 
     @Transactional

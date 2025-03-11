@@ -19,10 +19,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Modifying
     @Query("update tasks t set t.status = :status where t.id = :id")
-    void changeTaskStatusToDone(@Param("id") Long id, @Param("status") TaskStatus status);
+    void changeTaskStatus(@Param("id") Long id, @Param("status") TaskStatus status);
 
     @Query("SELECT t FROM tasks t WHERE t.user.id = :userId AND (t.title LIKE CONCAT('%', :keyword, '%') OR t.description LIKE CONCAT('%', :keyword, '%'))")
     List<Task> searchTasks(@Param("userId") Long userId, @Param("keyword") String keyword);
-//    @Query("SELECT t FROM tasks t WHERE t.user.id = :userId")
-//    List<Task> searchTasks(@Param("userId") Long userId);
 }
