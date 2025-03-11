@@ -109,6 +109,11 @@
                 </button>
             </form>
 
+            <form th:action="@{/admin/tasks/{taskId}/delete(taskId=${task.id})}" method="post">
+                <button type="submit" onclick="return confirm('Вы действительно хотите удалить задачу?')">
+                    Удалить
+                </button>
+            </form>
 
         </th>
     </tr>

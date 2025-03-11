@@ -75,4 +75,10 @@ public class AdminTasksController {
         taskService.changeTaskStatus(taskId, TaskStatus.CANCELED);
         return "redirect:/admin/tasks";
     }
+
+    @PostMapping("/tasks/{taskId}/delete")
+    public String deleteTask(@PathVariable("taskId") Long taskId) {
+        taskService.deleteTaskById(taskId);
+        return "redirect:/admin/tasks";
+    }
 }
