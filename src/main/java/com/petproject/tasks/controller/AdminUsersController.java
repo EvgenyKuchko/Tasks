@@ -49,7 +49,7 @@ public class AdminUsersController {
     }
 
     @PostMapping("/users/create")
-    public String addNewUser(@ModelAttribute UserDto userDto) {
+    public String createNewUser(@ModelAttribute UserDto userDto) {
         userService.registerUser(userDto);
         return "redirect:/admin/users";
     }
@@ -67,7 +67,7 @@ public class AdminUsersController {
     }
 
     @PostMapping("/users/{userId}/update")
-    public String updateUser(@PathVariable("userId") Long userId,@ModelAttribute UserDto userDto) {
+    public String updateUser(@PathVariable("userId") Long userId, @ModelAttribute UserDto userDto) {
         userService.updateUser(userId, userDto);
         return "redirect:/admin/users";
     }

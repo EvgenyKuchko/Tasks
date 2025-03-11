@@ -83,7 +83,7 @@
             </form>
         </td>
         <td>
-            <form th:action="@{/tasks/canceled/{taskId}(taskId=${task.id})}" method="post">
+            <form th:action="@{/tasks/cancel/{taskId}(taskId=${task.id})}" method="post">
                 <input type="hidden" name="userId" th:value="${userId}">
                 <button type="submit" onclick="return confirm('Вы действительно хотите отменить задачу?')">
                     Отменить

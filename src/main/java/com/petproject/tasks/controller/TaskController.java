@@ -71,8 +71,8 @@ public class TaskController {
         return "redirect:/tasks/" + userId;
     }
 
-    @PostMapping("/canceled/{taskId}")
-    public String canceledTask(@RequestParam("userId") Long userId, @PathVariable("taskId") Long taskId) {
+    @PostMapping("/cancel/{taskId}")
+    public String cancelTask(@RequestParam("userId") Long userId, @PathVariable("taskId") Long taskId) {
         taskService.changeTaskStatus(taskId, TaskStatus.CANCELED);
         return "redirect:/tasks/" + userId;
     }

@@ -110,7 +110,7 @@
                     th:data-user-id="${user.id}"
                     th:data-user-firstname="${user.firstName}"
                     th:data-user-username="${user.username}">
-                ✏️ Редактировать
+                Редактировать
             </button>
             <form th:action="@{/admin/users/{userId}(userId=${user.id})}" method="post">
                 <button type="submit"
@@ -179,7 +179,7 @@
       document.querySelectorAll(".editUserBtn").forEach(button => {
         button.addEventListener("click", function() {
           let userId = this.getAttribute("data-user-id");
-          let firstName = this.getAttribute("data-user-firstname"); // <-- Исправлено
+          let firstName = this.getAttribute("data-user-firstname");
           let username = this.getAttribute("data-user-username");
 
           // Заполняем поля в модальном окне
