@@ -94,7 +94,7 @@
                     th:data-task-description="${task.description}"
                     th:data-task-status="${task.status}"
                     th:data-task-date="${task.date}">
-                <Редактировать></Редактировать>
+                Редактировать
             </button>
 
             <form th:action="@{/admin/tasks/{taskId}/complete(taskId=${task.id})}" method="post">
@@ -102,6 +102,14 @@
                     Выполнить
                 </button>
             </form>
+
+            <form th:action="@{/admin/tasks/{taskId}/cancel(taskId=${task.id})}" method="post">
+                <button type="submit" onclick="return confirm('Вы действительно хотите отменить задачу?')">
+                    Отменить
+                </button>
+            </form>
+
+
         </th>
     </tr>
     </tbody>

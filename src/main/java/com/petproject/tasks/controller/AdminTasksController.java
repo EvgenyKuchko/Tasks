@@ -69,4 +69,10 @@ public class AdminTasksController {
         taskService.changeTaskStatus(taskId, TaskStatus.DONE);
         return "redirect:/admin/tasks";
     }
+
+    @PostMapping("/tasks/{taskId}/cancel")
+    public String cancelTask(@PathVariable("taskId") Long taskId) {
+        taskService.changeTaskStatus(taskId, TaskStatus.CANCELED);
+        return "redirect:/admin/tasks";
+    }
 }
