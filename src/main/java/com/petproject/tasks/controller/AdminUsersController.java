@@ -50,7 +50,16 @@ public class AdminUsersController {
     }
 
     @PostMapping("/users/create")
-    public String createNewUser(@ModelAttribute UserDto userDto) {
+    public String createNewUser(@Valid @ModelAttribute UserDto userDto,
+                                BindingResult bindingResult,
+                                Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("users", userService.getAllUsers());
+            model.addAttribute("userDto", userDto);
+            return "users";
+        }
         userService.registerUser(userDto);
         return "redirect:/admin/users";
     }
