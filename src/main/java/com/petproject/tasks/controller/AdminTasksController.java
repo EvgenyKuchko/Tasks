@@ -5,9 +5,11 @@ import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.service.TaskService;
 import com.petproject.tasks.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -62,8 +64,18 @@ public class AdminTasksController {
     }
 
     @PostMapping("/tasks/{taskId}/update")
-    public String updateTask(@ModelAttribute TaskDto taskDto,
-                             @PathVariable("taskId") Long taskId) {
+    public String updateTask(@Valid @ModelAttribute TaskDto taskDto,
+                             @PathVariable("taskId") Long taskId,
+                             BindingResult bindingResult,
+                             Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("tasks", taskService.findAllTasks());
+            model.addAttribute("task", taskDto);
+            return "tasks";
+        }
+
         taskService.updateTask(taskId, taskDto);
         return "redirect:/admin/tasks";
     }

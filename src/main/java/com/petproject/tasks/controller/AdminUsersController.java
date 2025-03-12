@@ -86,6 +86,7 @@ public class AdminUsersController {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("users", userService.getAllUsers());
             model.addAttribute("userDto", userDto);
+            model.addAttribute("updateUserId", userId);
             return "users";
         }
 
