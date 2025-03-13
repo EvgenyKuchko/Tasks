@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -40,7 +38,7 @@ public class TaskRepositoryTest {
                 .firstName("Ann")
                 .username("useru")
                 .password("passwo")
-                .roles(Collections.singleton(UserRole.USER))
+                .roles(new HashSet<>(Set.of(UserRole.USER)))
                 .build();
 
         userRepository.save(user);
