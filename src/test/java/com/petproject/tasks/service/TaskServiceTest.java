@@ -15,9 +15,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,8 +42,6 @@ public class TaskServiceTest {
 
     private final Long USER_ID = 1L;
     private final Long TASK_ID = 999L;
-    private final String TITLE = "work";
-    private final String DESCRIPTION = "go to work";
     private final LocalDate DATE = LocalDate.parse("2025-05-07");
 
     @BeforeEach
@@ -57,10 +53,11 @@ public class TaskServiceTest {
                 .build();
 
         taskDto = TaskDto.builder()
-                .title(TITLE)
-                .description(DESCRIPTION)
+                .title("work")
+                .description("go to work")
                 .date(DATE)
                 .status(TaskStatus.DONE)
+                .username(user.getUsername())
                 .build();
 
         dtoTasks = new ArrayList<>();
@@ -186,20 +183,56 @@ public class TaskServiceTest {
 
     @Test
     public void shouldNewTask() {
-        String username = "aliali";
-        taskDto.setUsername(username);
-
         when(taskTransformer.transform(taskDto)).thenReturn(task);
-        when(userRepository.findByUsername(username)).thenReturn(user);
+        when(userRepository.findByUsername(taskDto.getUsername())).thenReturn(user);
 
         taskService.saveNewTask(taskDto);
 
         verify(taskTransformer, times(1)).transform(taskDto);
-        verify(userRepository, times(1)).findByUsername(username);
+        verify(userRepository, times(1)).findByUsername(taskDto.getUsername());
         verify(taskRepository, times(1)).save(task);
 
         assertThat(task.getStatus()).isEqualTo(TaskStatus.ACTIVE);
         assertThat(task.getUser()).isEqualTo(user);
         verifyNoMoreInteractions(taskRepository);
+    }
+
+    @Test
+    public void shouldReturnActiveTasksForCalendar() {
+        Long userId = 1L;
+        LocalDate dateOne = LocalDate.of(2025, 3, 13);
+        LocalDate dateTwo = LocalDate.of(2025, 3, 14);
+
+        Task task1 = new Task(1L, "Task 1", "Desc 1", dateOne, TaskStatus.ACTIVE, user);
+        Task task2 = new Task(2L, "Task 2", "Desc 2", dateOne, TaskStatus.ACTIVE, user);
+        Task task3 = new Task(3L, "Task 3", "Desc 3", dateOne, TaskStatus.DONE, user);
+        Task task4 = new Task(4L, "Task 4", "Desc 4", dateTwo, TaskStatus.ACTIVE, user);
+
+        List<Task> mockTasks = Arrays.asList(task1, task2, task3, task4);
+
+        TaskDto taskDto1 = new TaskDto(1L, "Task 1", "Desc 1", dateOne, TaskStatus.ACTIVE, user.getUsername());
+        TaskDto taskDto2 = new TaskDto(2L, "Task 2", "Desc 2", dateOne, TaskStatus.ACTIVE, user.getUsername());
+        TaskDto taskDto3 = new TaskDto(3L, "Task 3", "Desc 3", dateOne, TaskStatus.DONE, user.getUsername());
+        TaskDto taskDto4 = new TaskDto(4L, "Task 4", "Desc 4", dateTwo, TaskStatus.ACTIVE, user.getUsername());
+
+        when(taskRepository.getTasksByUserId(userId)).thenReturn(mockTasks);
+        when(taskTransformer.transform(task1)).thenReturn(taskDto1);
+        when(taskTransformer.transform(task2)).thenReturn(taskDto2);
+        when(taskTransformer.transform(task3)).thenReturn(taskDto3);
+        when(taskTransformer.transform(task4)).thenReturn(taskDto4);
+
+        List<Map<String, String>> events = taskService.getEvents(userId);
+
+        assertThat(events.size()).isEqualTo(2);
+
+        assertThat(events.get(0).get("title")).isEqualTo("🔹 1 задачи");
+        assertThat(events.get(0).get("start")).isEqualTo(dateTwo.toString());
+
+        assertThat(events.get(1).get("title")).isEqualTo("🔹 2 задачи");
+        assertThat(events.get(1).get("start")).isEqualTo(dateOne.toString());
+
+        verify(taskRepository, times(1)).getTasksByUserId(userId);
+
+        verify(taskTransformer, times(4)).transform(any(Task.class));
     }
 }
