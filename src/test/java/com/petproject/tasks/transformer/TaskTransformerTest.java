@@ -6,15 +6,17 @@ import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@SpringBootTest
 public class TaskTransformerTest {
 
     @Autowired
-    private final TaskTransformer taskTransformer = new TaskTransformer();
+    private TaskTransformer taskTransformer;
 
     private final String TITLE = "work";
     private final String DESCRIPTION = "go to work";

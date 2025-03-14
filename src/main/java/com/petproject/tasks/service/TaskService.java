@@ -41,17 +41,11 @@ public class TaskService {
 
     @Transactional
     public void saveTaskByUserIdAndDate(TaskDto taskDto, Long userId, LocalDate date) {
-        taskDto.setDate(date);
-        taskDto.setStatus(TaskStatus.ACTIVE);
         Task task = taskTransformer.transform(taskDto);
+        task.setDate(date);
+        task.setStatus(TaskStatus.ACTIVE);
         task.setUser(userRepository.getReferenceById(userId));
         taskRepository.save(task);
-    }
-
-    @Transactional
-    public Task findTaskById(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " is not found"));
     }
 
     @Transactional
@@ -78,7 +72,8 @@ public class TaskService {
 
     @Transactional
     public void updateTask(Long taskId, TaskDto taskDto) {
-        Task task = findTaskById(taskId);
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with ID " + taskId + " is not found"));
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
         task.setDate(taskDto.getDate());
@@ -111,8 +106,8 @@ public class TaskService {
 
     @Transactional
     public void saveNewTask(TaskDto taskDto) {
-        taskDto.setStatus(TaskStatus.ACTIVE);
         Task task = taskTransformer.transform(taskDto);
+        task.setStatus(TaskStatus.ACTIVE);
         task.setUser(userRepository.findByUsername(taskDto.getUsername()));
         taskRepository.save(task);
     }

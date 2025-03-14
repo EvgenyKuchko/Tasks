@@ -5,16 +5,18 @@ import com.petproject.tasks.entity.User;
 import com.petproject.tasks.entity.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+@SpringBootTest
 public class UserTransformerTest {
 
     @Autowired
-    private final UserTransformer userTransformer = new UserTransformer();
+    private UserTransformer userTransformer;
 
     private final String FIRSTNAME = "Ali";
     private final String USERNAME = "ali34";
