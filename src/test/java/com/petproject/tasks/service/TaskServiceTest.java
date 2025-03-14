@@ -75,7 +75,6 @@ public class TaskServiceTest {
 
         List<TaskDto> resultingTask = taskService.getTasksByUserId(USER_ID);
 
-        verify(taskRepository).getTasksByUserId(USER_ID);
         verify(taskRepository, times(1)).getTasksByUserId(USER_ID);
         verifyNoMoreInteractions(taskRepository);
         assertThat(resultingTask.size()).isEqualTo(tasks.size());
@@ -87,7 +86,6 @@ public class TaskServiceTest {
 
         List<TaskDto> resultingTasks = taskService.getTasksByUserIdAndDate(USER_ID, DATE);
 
-        verify(taskRepository).getTasksByUserIdAndDate(USER_ID, DATE);
         verify(taskRepository, times(1)).getTasksByUserIdAndDate(USER_ID, DATE);
         verifyNoMoreInteractions(taskRepository);
         assertThat(resultingTasks.size()).isEqualTo(tasks.size());
@@ -100,11 +98,8 @@ public class TaskServiceTest {
 
         taskService.saveTaskByUserIdAndDate(taskDto, USER_ID, DATE);
 
-        verify(taskTransformer).transform(taskDto);
         verify(taskTransformer, times(1)).transform(taskDto);
-        verify(userRepository).getReferenceById(USER_ID);
         verify(userRepository, times(1)).getReferenceById(USER_ID);
-        verify(taskRepository).save(task);
         verify(taskRepository, times(1)).save(task);
 
         assertThat(task.getStatus()).isEqualTo(TaskStatus.ACTIVE);
@@ -118,9 +113,7 @@ public class TaskServiceTest {
 
         taskService.updateTask(TASK_ID, taskDto);
 
-        verify(taskRepository).findById(TASK_ID);
         verify(taskRepository, times(1)).findById(TASK_ID);
-        verify(taskRepository).save(task);
         verify(taskRepository, times(1)).save(task);
 
         assertThat(task.getTitle()).isEqualTo(taskDto.getTitle());

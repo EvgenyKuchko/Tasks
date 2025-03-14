@@ -37,9 +37,7 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Username already taken");
         }
 
-        User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setUsername(userDto.getUsername());
+        User user = userTransformer.transform(userDto);
         user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         user.setRoles(Collections.singleton(UserRole.USER));
         return userRepository.save(user);
