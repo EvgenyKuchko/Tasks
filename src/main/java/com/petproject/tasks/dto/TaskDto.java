@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class TaskDto implements Dto {
+public class TaskDto implements Dto, Comparable<TaskDto> {
     private Long id;
     @NotBlank(message = "title cannot be empty")
     private String title;
@@ -26,4 +26,9 @@ public class TaskDto implements Dto {
     private TaskStatus status;
     @NotEmpty(message = "username cannot be empty")
     private String username;
+
+    @Override
+    public int compareTo(TaskDto o) {
+        return Long.compare(o.getId(), this.id);
+    }
 }
