@@ -2,6 +2,7 @@ package com.petproject.tasks.dto;
 
 import com.petproject.tasks.entity.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -23,5 +24,6 @@ public class TaskDto implements Dto {
     @NotNull(message = "date cannot be null")
     private LocalDate date;
     private TaskStatus status;
+    @NotEmpty(message = "username cannot be empty")
     private String username;
 }

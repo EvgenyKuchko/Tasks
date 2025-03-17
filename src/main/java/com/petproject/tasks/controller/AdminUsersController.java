@@ -58,8 +58,10 @@ public class AdminUsersController {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("users", userService.getAllUsers());
             model.addAttribute("userDto", userDto);
+            model.addAttribute("hasErrors", true);
             return "users";
         }
+
         userService.registerUser(userDto);
         return "redirect:/admin/users";
     }

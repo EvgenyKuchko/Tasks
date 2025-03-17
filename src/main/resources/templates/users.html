@@ -48,7 +48,7 @@
 
 <button id="openUserModal">Создать пользователя</button>
 
-<div id="userModal" class="modal">
+<div id="userModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Создание нового пользователя</h2>
@@ -69,9 +69,7 @@
 
             <button type="submit">Создать</button>
         </form>
-        <!-- Скрытое поле, чтобы JS знал, что были ошибки -->
-        <input type="hidden" id="validationErrorCreate" th:value="${bindingResult.hasErrors() ? 'true' : 'false'}">
-
+        <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
     </div>
 </div>
 
@@ -179,24 +177,29 @@
         let userModal = document.getElementById("userModal");
         let openUserBtn = document.getElementById("openUserModal");
         let closeUserBtn = userModal.querySelector(".close");
-        let createUserForm = document.getElementById("userForm"); // Форма создания пользователя
+        let createUserForm = document.getElementById("userForm");
 
-        openUserBtn.onclick = function() {
-            userModal.style.display = "block";
-        };
-        closeUserBtn.onclick = function() {
-            userModal.style.display = "none";
-        };
+        if (openUserBtn) {
+            openUserBtn.onclick = function() {
+                userModal.style.display = "block";
+            };
+        }
 
-        window.onclick = function(event) {
-            if (event.target === userModal) {
+        if (closeUserBtn) {
+            closeUserBtn.onclick = function() {
                 userModal.style.display = "none";
-            }
-        };
+            };
+        }
 
-        // ---- Модальное окно редактирования пользователя ----
+        // ---- Проверяем, есть ли ошибки после отправки формы ----
+        let validationErrorCreate = document.getElementById("validationErrorCreate")?.value;
+        if (validationErrorCreate === "true") {
+            userModal.style.display = "block";
+        }
+
+        // ---- Окно редактирования пользователя ----
         let updateModal = document.getElementById("updateUserModal");
-        let closeUpdateBtn = updateModal.querySelector(".close");
+        let closeUpdateBtn = updateModal?.querySelector(".close");
         let updateUserForm = document.getElementById("updateUserForm");
         let passwordField = document.getElementById("updateUserPassword");
 
@@ -219,16 +222,23 @@
             });
         });
 
-        closeUpdateBtn.onclick = function() {
-            updateModal.style.display = "none";
-        };
+        if (closeUpdateBtn) {
+            closeUpdateBtn.onclick = function() {
+                updateModal.style.display = "none";
+            };
+        }
 
+        // ---- Глобальный обработчик закрытия по клику вне модального окна ----
         window.onclick = function(event) {
+            if (event.target === userModal) {
+                userModal.style.display = "none";
+            }
             if (event.target === updateModal) {
                 updateModal.style.display = "none";
             }
         };
 
+        // ---- Закрытие окон по ESC ----
         document.addEventListener("keydown", function(event) {
             if (event.key === "Escape") {
                 userModal.style.display = "none";
@@ -236,22 +246,17 @@
             }
         });
 
+        // ---- Удаляем поле name у пароля, если оно пустое ----
         updateUserForm.addEventListener("submit", function() {
             if (!passwordField.value.trim()) {
                 passwordField.removeAttribute("name");
             }
         });
 
-        // ---- Оставляем модальное окно редактирования открытым при ошибке валидации ----
+        // ---- Оставляем окно редактирования открытым при ошибках ----
         let validationErrorUpdate = document.getElementById("validationErrorUpdate")?.value;
         if (validationErrorUpdate === "true") {
             updateModal.style.display = "block";
-        }
-
-        // ---- Оставляем модальное окно создания открытым при ошибке валидации ----
-        let validationErrorCreate = document.getElementById("validationErrorCreate")?.value;
-        if (validationErrorCreate === "true") {
-            userModal.style.display = "block";
         }
     });
 </script>
