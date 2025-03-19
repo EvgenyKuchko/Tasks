@@ -37,9 +37,7 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("Username already taken");
         }
 
-        User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setUsername(userDto.getUsername());
+        User user = userTransformer.transform(userDto);
         user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         user.setRoles(Collections.singleton(UserRole.USER));
         return userRepository.save(user);
@@ -108,5 +106,10 @@ public class UserService implements UserDetailsService {
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         }
         userRepository.save(user);
+    }
+
+    @Transactional
+    public boolean existsUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 }
