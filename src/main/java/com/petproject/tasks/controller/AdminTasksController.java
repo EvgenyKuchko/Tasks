@@ -62,7 +62,6 @@ public class AdminTasksController {
         return "tasks";
     }
 
-    // не передается taskId
     @PostMapping("/tasks/{taskId}/update")
     public String updateTask(@PathVariable Long taskId,
                              @Valid @ModelAttribute("taskDto") TaskDto taskDto,
