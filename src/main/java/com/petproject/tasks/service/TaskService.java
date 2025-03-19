@@ -105,8 +105,7 @@ public class TaskService {
     @Transactional
     public List<TaskDto> findAllTasks() {
         return taskRepository.findAll().stream()
-                .map(x -> taskTransformer.transform(x))
-                .collect(Collectors.toList());
+                .map(x -> taskTransformer.transform(x)).sorted().collect(Collectors.toList());
     }
 
     @Transactional

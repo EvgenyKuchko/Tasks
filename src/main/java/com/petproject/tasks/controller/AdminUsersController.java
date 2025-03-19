@@ -3,9 +3,11 @@ package com.petproject.tasks.controller;
 import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.UserRole;
 import com.petproject.tasks.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -23,7 +25,6 @@ public class AdminUsersController {
     public String showUsersPage(@RequestParam(value = "username", required = false) String username,
                                 @RequestParam(value = "role", required = false) String role,
                                 Model model) {
-        UserDto userDto = new UserDto();
         List<UserDto> users = userService.getAllUsers();
         List<String> allRoles = new ArrayList<>();
         allRoles.add(UserRole.ADMIN.name());
@@ -44,12 +45,23 @@ public class AdminUsersController {
 
         model.addAttribute("users", users);
         model.addAttribute("allRoles", allRoles);
-        model.addAttribute("userDto", userDto);
+        model.addAttribute("userDto", new UserDto());
         return "users";
     }
 
     @PostMapping("/users/create")
-    public String createNewUser(@ModelAttribute UserDto userDto) {
+    public String createNewUser(@Valid @ModelAttribute UserDto userDto,
+                                BindingResult bindingResult,
+                                Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("users", userService.getAllUsers());
+            model.addAttribute("userDto", userDto);
+            model.addAttribute("hasErrors", true);
+            return "users";
+        }
+
         userService.registerUser(userDto);
         return "redirect:/admin/users";
     }
@@ -67,7 +79,19 @@ public class AdminUsersController {
     }
 
     @PostMapping("/users/{userId}/update")
-    public String updateUser(@PathVariable("userId") Long userId, @ModelAttribute UserDto userDto) {
+    public String updateUser(@PathVariable Long userId,
+                             @Valid @ModelAttribute("userDto") UserDto userDto,
+                             BindingResult bindingResult,
+                             Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("users", userService.getAllUsers());
+            model.addAttribute("userDto", userDto);
+            model.addAttribute("updateUserId", userId);
+            return "users";
+        }
+
         userService.updateUser(userId, userDto);
         return "redirect:/admin/users";
     }
