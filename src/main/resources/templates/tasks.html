@@ -4,78 +4,91 @@
 <head>
     <meta charset="UTF-8">
     <title>Список задач</title>
-  <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    th, td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f2f2f2;
-    }
-      .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-  }
-  .modal-content {
-      background-color: white;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 30%;
-  }
-  .close {
-      float: right;
-      font-size: 28px;
-      cursor: pointer;
-  }
-  </style>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+          .modal {
+          display: none;
+          position: fixed;
+          z-index: 1;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.4);
+      }
+      .modal-content {
+          background-color: white;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 30%;
+      }
+      .close {
+          float: right;
+          font-size: 28px;
+          cursor: pointer;
+      }
+    </style>
 </head>
 <body>
 <h2>Список задач</h2>
 
-<div th:if="${error}" class="error-message" style="color: red;">
-    <p th:text="${error}"></p>
-</div>
-
 <button id="openTaskModal">Создать задачу</button>
 
-<div id="taskModal" class="modal">
+<div id="taskModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Создание новой задачи</h2>
-        <form id="taskForm" method="post" th:action="@{/admin/tasks/create}" th:object="${task}">
+        <div th:if="${error}" class="error-message" style="color: red;">
+            <p th:text="${error}"></p>
+        </div>
+        <form id="taskForm" method="post" th:action="@{/admin/tasks/create}" th:object="${taskDto}">
             <label for="title">Название:</label>
             <input type="text" id="title" th:field="*{title}" required>
+            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                  style="color: red;"></span>
+            <br><br>
 
             <label for="description">Описание:</label>
             <input type="text" id="description" th:field="*{description}" required>
+            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                  style="color: red;"></span>
+            <br><br>
 
-            <label for="date">Пароль:</label>
-            <input type="date" id="date" th:field="*{date}" required>
+            <label for="date">Дата:</label>
+            <input type="date" id="date" th:field="*{date}" th:value="*{date}" required>
+            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+                  style="color: red;"></span>
+            <br><br>
 
             <label for="username">Назначить пользователю:</label>
             <select id="username" th:field="*{username}" required>
                 <option value="">Выберите пользователя</option>
                 <option th:each="username : ${usernames}"
                         th:value="${username}"
-                        th:text="${username}">
+                        th:text="${username}"
+                        th:selected="${username == taskDto.username}">
                 </option>
             </select>
+            <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
+                  style="color: red;"></span>
 
             <button type="submit">Создать</button>
         </form>
+
+        <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
     </div>
 </div>
 
@@ -158,137 +171,116 @@
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Редактировать задачу</h2>
-        <form id="updateTaskForm" th:action="@{/admin/tasks/{taskId}/update(taskId=${task.id})}" method="post" th:object="${task}">
-            <input type="hidden" name="taskId" id="updateTaskId">
+        <div th:if="${error}" class="error-message" style="color: red;">
+            <p th:text="${error}"></p>
+        </div>
+        <form id="updateTaskForm" th:action="@{/admin/tasks/{taskId}/update(taskId=${updateTaskId})}" method="post"
+              th:object="${taskDto}">
+
+            <input type="hidden" id="updateTaskId" name="id" th:field="*{id}">
 
             <label for="updateTaskTitle">Название:</label>
-            <input type="text" name="title" id="updateTaskTitle">
-            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red;"></span>
+            <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
+            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                  style="color: red;"></span>
             <br><br>
 
             <label for="updateTaskDescription">Описание:</label>
-            <textarea name="description" id="updateTaskDescription"></textarea>
-            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red;"></span>
+            <textarea name="description" id="updateTaskDescription" th:field="*{description}"></textarea>
+            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
+                  style="color: red;"></span>
             <br><br>
 
             <label for="updateTaskDate">Дата:</label>
-            <input type="date" name="date" id="updateTaskDate">
-            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" style="color: red;"></span>
+            <input type="date" name="date" id="updateTaskDate" th:field="*{date}">
+            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+                  style="color: red;"></span>
             <br><br>
 
             <button type="submit">Обновить</button>
         </form>
+        <input type="hidden" id="validationErrorUpdate" th:value="${updateTaskId != null ? 'true' : 'false'}">
     </div>
 </div>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // =========================
-        // Модальное окно создания задачи
-        // =========================
-        let taskModal = document.getElementById("taskModal");
-        let openTaskModalBtn = document.getElementById("openTaskModal");
-        let closeTaskModalBtn = taskModal.querySelector(".close");
+    // =========================
+    // Функции для модальных окон
+    // =========================
+    function openModal(modal) {
+        modal.style.display = "block";
+    }
 
-        openTaskModalBtn.addEventListener("click", function () {
-            // Очищаем поля перед открытием
-            document.getElementById("title").value = "";
-            document.getElementById("description").value = "";
-            document.getElementById("date").value = "";
-            document.getElementById("username").value = ""; // Сбрасываем выбор пользователя
+    function closeModal(modal) {
+        modal.style.display = "none";
+    }
 
-            taskModal.style.display = "block";
-        });
+    function setupModalEvents(openButtonId, modalId, closeButtonSelector, errorInputId) {
+        let modal = document.getElementById(modalId);
+        let openButton = document.getElementById(openButtonId);
+        let closeButton = modal.querySelector(closeButtonSelector);
+        let validationError = document.getElementById(errorInputId)?.value;
 
-        closeTaskModalBtn.addEventListener("click", function () {
-            taskModal.style.display = "none";
-        });
-
-        // Закрытие при клике вне модального окна создания
-        window.addEventListener("click", function (event) {
-            if (event.target === taskModal) {
-                taskModal.style.display = "none";
-            }
-        });
-
-        // =========================
-        // Модальное окно редактирования задачи
-        // =========================
-        let updateTaskModal = document.getElementById("updateTaskModal");
-        let closeUpdateTaskBtn = updateTaskModal.querySelector(".close");
-
-        document.querySelectorAll(".openUpdateModel").forEach(button => {
-            button.addEventListener("click", function () {
-                let taskId = this.getAttribute("data-task-id");
-                let title = this.getAttribute("data-task-title");
-                let description = this.getAttribute("data-task-description");
-                let date = this.getAttribute("data-task-date");
-                let status = this.getAttribute("data-task-status");
-                let assignedUser = this.getAttribute("data-task-user"); // Получаем пользователя задачи
-
-                if (!taskId) {
-                    console.error("Ошибка: отсутствует data-task-id у кнопки");
-                    return;
-                }
-
-                // Заполняем форму
-                document.getElementById("updateTaskId").value = taskId;
-                document.getElementById("updateTaskTitle").value = title;
-                document.getElementById("updateTaskDescription").value = description;
-                if (date) {
-                    document.getElementById("updateTaskDate").value = date;
-                }
-
-                // Устанавливаем статус
-                let statusSelect = document.getElementById("updateTaskStatus");
-                if (statusSelect) {
-                    let found = false;
-                    for (let option of statusSelect.options) {
-                        if (option.textContent.trim() === status.trim()) {
-                            option.selected = true;
-                            found = true;
-                            break;
+        if (openButton) {
+            openButton.addEventListener("click", function () {
+                if (validationError !== "true") {
+                    // Если нет ошибок валидации — очищаем поля, кроме date и username
+                    modal.querySelectorAll("input, textarea, select").forEach(input => {
+                        if (input.type !== "hidden" && input.id !== "updateTaskDate" && input.id !== "username") {
+                            input.value = "";
                         }
-                    }
-                    if (!found) {
-                        console.warn(`Статус ${status} не найден в списке`);
-                    }
+                    });
                 }
-
-                // Устанавливаем пользователя
-                let userSelect = document.getElementById("updateTaskUser");
-                if (userSelect) {
-                    let userFound = false;
-                    for (let option of userSelect.options) {
-                        if (option.value.trim() === assignedUser.trim()) {
-                            option.selected = true;
-                            userFound = true;
-                            break;
-                        }
-                    }
-                    if (!userFound) {
-                        console.warn(`Пользователь ${assignedUser} не найден в списке`);
-                    }
-                }
-
-                // Обновляем action формы
-                document.getElementById("updateTaskForm").action = `/admin/tasks/${taskId}/update`;
-
-                // Открываем модальное окно
-                updateTaskModal.style.display = "block";
+                openModal(modal);
             });
-        });
+        }
 
-        closeUpdateTaskBtn.onclick = function () {
-            updateTaskModal.style.display = "none";
-        };
+        if (closeButton) {
+            closeButton.addEventListener("click", function () {
+                closeModal(modal);
+            });
+        }
 
-        window.addEventListener("click", function (event) {
-            if (event.target === updateTaskModal) {
-                updateTaskModal.style.display = "none";
-            }
+        // Если были ошибки валидации, открываем окно
+        if (validationError === "true") {
+            openModal(modal);
+        }
+    }
+
+    // =========================
+    // Модальное окно создания задачи
+    // =========================
+    setupModalEvents("openTaskModal", "taskModal", ".close", "validationErrorCreate");
+
+    // =========================
+    // Модальное окно редактирования задачи
+    // =========================
+    setupModalEvents("openUpdateTaskModal", "updateTaskModal", ".close", "validationErrorUpdate");
+
+    document.querySelectorAll(".openUpdateModel").forEach(button => {
+        button.addEventListener("click", function () {
+            let taskId = this.getAttribute("data-task-id");
+            let title = this.getAttribute("data-task-title");
+            let description = this.getAttribute("data-task-description");
+            let date = this.getAttribute("data-task-date");
+
+            document.getElementById("updateTaskId").value = taskId;
+            document.getElementById("updateTaskTitle").value = title;
+            document.getElementById("updateTaskDescription").value = description;
+            document.getElementById("updateTaskDate").value = date;
+
+            document.getElementById("updateTaskForm").setAttribute("action", `/admin/tasks/${taskId}/update`);
+
+            openModal(document.getElementById("updateTaskModal"));
         });
+        // ---- Оставляем окно редактирования открытым при ошибках ----
+        let validationErrorUpdate = document.getElementById("validationErrorUpdate")?.value;
+        if (validationErrorUpdate === "true") {
+            updateModal.style.display = "block";
+        }
     });
+});
 </script>
 
 <a th:href="@{/admin}">К странице админа</a>

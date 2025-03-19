@@ -13,7 +13,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +44,7 @@ public class AdminTasksController {
                     .collect(Collectors.toList());
         }
 
-        if(username != null && !username.isEmpty()) {
+        if (username != null && !username.isEmpty()) {
             tasks = tasks.stream()
                     .filter(taskDto -> taskDto.getUsername().equals(username))
                     .collect(Collectors.toList());
@@ -58,21 +57,23 @@ public class AdminTasksController {
         }
 
         model.addAttribute("usernames", usernames);
-        model.addAttribute("task", new TaskDto());
+        model.addAttribute("taskDto", new TaskDto());
         model.addAttribute("tasks", tasks);
         return "tasks";
     }
 
+    // не передается taskId
     @PostMapping("/tasks/{taskId}/update")
-    public String updateTask(@Valid @ModelAttribute TaskDto taskDto,
-                             @PathVariable("taskId") Long taskId,
+    public String updateTask(@PathVariable Long taskId,
+                             @Valid @ModelAttribute("taskDto") TaskDto taskDto,
                              BindingResult bindingResult,
                              Model model) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("tasks", taskService.findAllTasks());
-            model.addAttribute("task", taskDto);
+            model.addAttribute("taskDto", taskDto);
+            model.addAttribute("updateTaskId", taskId);
             return "tasks";
         }
 
@@ -99,7 +100,19 @@ public class AdminTasksController {
     }
 
     @PostMapping("/tasks/create")
-    public String createNewTask(@ModelAttribute TaskDto taskDto) {
+    public String createNewTask(@Valid @ModelAttribute("taskDto") TaskDto taskDto,
+                                BindingResult bindingResult,
+                                Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("tasks", taskService.findAllTasks());
+            model.addAttribute("usernames", userService.getAllUsers().stream()
+                    .map(UserDto::getUsername)
+                    .collect(Collectors.toSet()));
+            model.addAttribute("taskDto", taskDto);
+            model.addAttribute("hasErrors", true);
+            return "tasks";
+        }
         taskService.saveNewTask(taskDto);
         return "redirect:/admin/tasks";
     }
