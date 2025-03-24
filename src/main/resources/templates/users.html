@@ -247,9 +247,10 @@
         });
 
         // ---- Удаляем поле name у пароля, если оно пустое ----
-        updateUserForm.addEventListener("submit", function() {
+        updateUserForm.addEventListener("submit", function () {
+            let passwordField = document.getElementById("updateUserPassword");
             if (!passwordField.value.trim()) {
-                passwordField.removeAttribute("name");
+                passwordField.removeAttribute("name"); // Удаляем из запроса
             }
         });
 

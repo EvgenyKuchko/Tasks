@@ -83,7 +83,9 @@ public class AdminUsersController {
                              @Valid @ModelAttribute("userDto") UserDto userDto,
                              BindingResult bindingResult,
                              Model model) {
-
+        if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+            bindingResult.rejectValue("password", null);
+        }
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("users", userService.getAllUsers());

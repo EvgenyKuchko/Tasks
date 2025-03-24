@@ -5,6 +5,7 @@ import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.service.TaskService;
 import com.petproject.tasks.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -43,12 +44,20 @@ public class TaskController {
                                       Model model) {
         List<TaskDto> tasks = taskService.getTasksByUserIdAndDate(userId, date);
         model.addAttribute("tasks", tasks);
+        model.addAttribute("taskDto", new TaskDto());
         return "dateTasks";
     }
 
     @PostMapping("/{userId}/{date}")
     public String addNewTask(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                             @PathVariable("userId") Long userId, @ModelAttribute TaskDto taskDto) {
+                             @PathVariable("userId") Long userId, @Valid @ModelAttribute("taskDto") TaskDto taskDto,
+                             BindingResult bindingResult, Model model) {
+        if(bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("tasks", taskService.getTasksByUserIdAndDate(userId, date));
+            model.addAttribute("hasErrors", true);
+            return "dateTasks";
+        }
         taskService.saveTaskByUserIdAndDate(taskDto, userId, date);
         return "redirect:/tasks/" + userId;
     }
