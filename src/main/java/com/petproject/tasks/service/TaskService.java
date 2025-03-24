@@ -92,9 +92,12 @@ public class TaskService {
 
     @Transactional
     public List<TaskDto> searchTasks(Long userId, String keyword) {
-        return taskRepository.searchTasks(userId, keyword).stream()
-                .map(x -> taskTransformer.transform(x))
-                .collect(Collectors.toList());
+        if (keyword != null && !keyword.isEmpty()) {
+             return taskRepository.searchTasks(userId, keyword).stream()
+                    .map(x -> taskTransformer.transform(x))
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     @Transactional
