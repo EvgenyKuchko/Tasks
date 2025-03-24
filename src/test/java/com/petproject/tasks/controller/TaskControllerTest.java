@@ -21,9 +21,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
@@ -40,6 +43,7 @@ public class TaskControllerTest {
     private TaskService taskService;
 
     private UserDto userDto;
+    private Long taskId;
 
     @BeforeEach
     public void setUp() {
@@ -50,6 +54,8 @@ public class TaskControllerTest {
                 .password("pass123")
                 .roles(Collections.singleton(UserRole.USER))
                 .build();
+
+        taskId = 8L;
     }
 
     @Test
@@ -83,6 +89,72 @@ public class TaskControllerTest {
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles()))))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dateTasks"))
+                .andExpect(model().attributeExists("tasks"));
+    }
+
+    //тест создания и измменения задачи
+
+    @Test
+    public void shouldDeleteTask() throws Exception {
+        doNothing().when(taskService).deleteTaskById(taskId);
+
+        this.mockMvc.perform(post("/tasks/delete/" + taskId)
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("userId", String.valueOf(userDto.getId())))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+    }
+
+    @Test
+    public void shouldCompleteTask() throws Exception {
+        doNothing().when(taskService).changeTaskStatus(taskId, TaskStatus.DONE);
+
+        this.mockMvc.perform(post("/tasks/complete/" + taskId)
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("userId", String.valueOf(userDto.getId())))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+    }
+
+    @Test
+    public void shouldCancelTask() throws Exception {
+        doNothing().when(taskService).changeTaskStatus(taskId, TaskStatus.CANCELED);
+
+        this.mockMvc.perform(post("/tasks/cancel/" + taskId)
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("userId", String.valueOf(userDto.getId())))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+    }
+
+    @Test
+    public void shouldSearchTasksWithBlankKeyword() throws Exception {
+        this.mockMvc.perform(get("/tasks/" + userDto.getId() + "/search")
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("query", "  "))
+                .andExpect(status().isOk())
+                .andExpect(view().name("search"))
+                .andExpect(model().attributeExists("blankField"));
+    }
+
+    @Test
+    public void shouldSearchTasksWithKeywordAndReturnEmptyTasksList() throws Exception {
+        String keyword = "training";
+        List<TaskDto> tasks = Collections.emptyList();
+
+        when(taskService.searchTasks(userDto.getId(), keyword)).thenReturn(tasks);
+
+        this.mockMvc.perform(get("/tasks/" + userDto.getId() + "/search")
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("query", keyword))
+                .andExpect(status().isOk())
+                .andExpect(view().name("search"))
+                .andExpect(model().attributeExists("searchPerformed"))
                 .andExpect(model().attributeExists("tasks"));
     }
 }

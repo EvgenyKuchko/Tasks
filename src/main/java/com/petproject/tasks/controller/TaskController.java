@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -80,10 +81,13 @@ public class TaskController {
     @GetMapping("/{userId}/search")
     public String searchTasks(@PathVariable("userId") Long userId,
                               @RequestParam(value = "query", required = false) String keyword, Model model) {
-        List<TaskDto> searchResult = (keyword != null && !keyword.isEmpty()) ? taskService.searchTasks(userId, keyword) : Collections.emptyList();
+        if(keyword != null && keyword.isBlank()) {
+            model.addAttribute("blankField", true);
+            return "search";
+        }
+        List<TaskDto> searchResult = taskService.searchTasks(userId, keyword);
         model.addAttribute("tasks", searchResult);
         model.addAttribute("searchPerformed", true);
         return "search";
     }
-
 }
