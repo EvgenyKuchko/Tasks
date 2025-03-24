@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Поиск задач</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск задач</title>
 </head>
 <body>
 
 <h1>🔍 Поиск задач</h1>
 
-<!-- Форма поиска -->
 <form th:action="@{'/tasks/' + ${userId} + '/search'}" method="get">
-  <input type="text" name="query" placeholder="Введите ключевое слово" required>
-  <button type="submit">Найти</button>
+    <input type="text" name="query" placeholder="Введите ключевое слово" required>
+    <button type="submit">Найти</button>
 </form>
 
-<!-- Блок для результатов -->
 <div>
-  <h2>Результаты поиска:</h2>
+    <h2>Результаты поиска:</h2>
 
-  <ul th:if="${tasks != null and not #lists.isEmpty(tasks)}">
-    <li th:each="task : ${tasks}">
-      <a th:href="@{'/tasks/' + ${userId} + '/' + ${task.date}}"
-         th:text="${task.title}"></a>
-    </li>
-  </ul>
+    <ul th:if="${tasks != null and not #lists.isEmpty(tasks)}">
+        <li th:each="task : ${tasks}">
+            <a th:href="@{'/tasks/' + ${userId} + '/' + ${task.date}}"
+               th:text="${task.title}"></a>
+        </li>
+    </ul>
 
-  <!-- Показать сообщение, если поиск был выполнен и список пуст -->
-  <p th:unless="${tasks != null and not #lists.isEmpty(tasks)}" th:if="${searchPerformed}">Результатов не найдено</p>
+    <p th:unless="${tasks != null and not #lists.isEmpty(tasks)}" th:if="${searchPerformed}">Результатов не найдено</p>
+
+    <p th:if="${blankField}">The field cannot contain only spaces</p>
 </div>
 
-<!-- Кнопка "Назад" -->
 <a th:href="@{/tasks/{userId}(userId=${userId})}">Назад к календарю</a>
-
 </body>
 </html>

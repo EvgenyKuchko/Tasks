@@ -43,6 +43,7 @@ public class TaskServiceTest {
     private final Long USER_ID = 1L;
     private final Long TASK_ID = 999L;
     private final LocalDate DATE = LocalDate.parse("2025-05-07");
+    private final String KEYWORD = "meeting";
 
     @BeforeEach
     public void setUp() {
@@ -162,16 +163,26 @@ public class TaskServiceTest {
 
     @Test
     public void shouldReturnTasksByKeyword() {
-        String keyword = "meeting";
+        when(taskRepository.searchTasks(USER_ID, KEYWORD)).thenReturn(tasks);
 
-        when(taskRepository.searchTasks(USER_ID, keyword)).thenReturn(tasks);
+        List<TaskDto> resultingTasks = taskService.searchTasks(USER_ID, KEYWORD);
 
-        List<TaskDto> resultingTasks = taskService.searchTasks(USER_ID, keyword);
-
-        verify(taskRepository, times(1)).searchTasks(USER_ID, keyword);
+        verify(taskRepository, times(1)).searchTasks(USER_ID, KEYWORD);
         verifyNoMoreInteractions(taskRepository);
         assertThat(resultingTasks).isNotNull();
         assertThat(resultingTasks.size()).isEqualTo(tasks.size());
+    }
+
+    @Test
+    public void shouldReturnEmptyList() {
+        when(taskRepository.searchTasks(USER_ID, KEYWORD)).thenReturn(Collections.emptyList());
+
+        List<TaskDto> resultingTasks = taskService.searchTasks(USER_ID, KEYWORD);
+
+        verify(taskRepository, times(1)).searchTasks(USER_ID, KEYWORD);
+        verifyNoMoreInteractions(taskRepository);
+        assertThat(resultingTasks).isNotNull();
+        assertThat(resultingTasks.isEmpty()).isEqualTo(true);
     }
 
     @Test
