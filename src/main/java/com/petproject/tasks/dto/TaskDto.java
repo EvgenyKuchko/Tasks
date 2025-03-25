@@ -4,8 +4,8 @@ import com.petproject.tasks.entity.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -22,6 +22,7 @@ public class TaskDto implements Dto, Comparable<TaskDto> {
     @NotBlank(message = "description cannot be empty")
     private String description;
     @NotNull(message = "date cannot be null")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
     private TaskStatus status;
     @NotEmpty(message = "username cannot be empty")
