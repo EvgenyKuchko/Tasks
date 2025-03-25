@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,7 +42,8 @@ public class TaskControllerTest {
     private TaskService taskService;
 
     private UserDto userDto;
-    private Long taskId;
+    private TaskDto taskDto;
+    private final Long TASK_ID = 8L;
 
     @BeforeEach
     public void setUp() {
@@ -55,7 +55,14 @@ public class TaskControllerTest {
                 .roles(Collections.singleton(UserRole.USER))
                 .build();
 
-        taskId = 8L;
+        taskDto = TaskDto.builder()
+                .id(TASK_ID)
+                .title("title")
+                .description("description")
+                .username(userDto.getUsername())
+                .status(TaskStatus.ACTIVE)
+                .date(LocalDate.parse("2025-05-07"))
+                .build();
     }
 
     @Test
@@ -73,6 +80,9 @@ public class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("calendar"))
                 .andExpect(model().attributeExists("firstName", "userId", "events"));
+
+        verify(userService, times(1)).getUserById(any());
+        verify(taskService, times(1)).getEvents(any());
     }
 
     @Test
@@ -90,44 +100,122 @@ public class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("dateTasks"))
                 .andExpect(model().attributeExists("tasks"));
+
+        verify(taskService, times(1)).getTasksByUserIdAndDate(any(), any());
     }
 
-    //тест создания и измменения задачи
+    @Test
+    public void shouldFailAddNewTaskWithValidationErrorAndReturnSamePage() throws Exception {
+        this.mockMvc.perform(post("/tasks/" + userDto.getId() + "/" + taskDto.getDate())
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("title", taskDto.getTitle())
+                        .param("description", "  ")
+                        .param("date", String.valueOf(taskDto.getDate())))
+                .andExpect(status().isOk())
+                .andExpect(view().name("dateTasks"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attributeExists("hasErrors"));
+
+        verify(taskService, times(0)).saveTaskByUserIdAndDate(any(), anyLong(), any());
+    }
+
+    @Test
+    public void shouldSuccessCreateNewTaskAndRedirect() throws Exception {
+        doNothing().when(taskService).saveTaskByUserIdAndDate(taskDto, userDto.getId(), taskDto.getDate());
+
+        this.mockMvc.perform(post("/tasks/" + userDto.getId() + "/" + taskDto.getDate())
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("title", taskDto.getTitle())
+                        .param("description", taskDto.getDescription())
+                        .param("date", String.valueOf(taskDto.getDate()))
+                        .param("username", userDto.getUsername()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+
+        verify(taskService, times(1)).saveTaskByUserIdAndDate(any(TaskDto.class), eq(1L), any(LocalDate.class));
+    }
+
+    @Test
+    public void shouldFailUpdateTaskWithValidationErrorAndReturnSamePage() throws Exception {
+        this.mockMvc.perform(post("/tasks/update/" + TASK_ID)
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("title", taskDto.getTitle())
+                        .param("description", "  ")
+                        .param("date", String.valueOf(taskDto.getDate()))
+                        .param("userId", String.valueOf(userDto.getId())))
+                .andExpect(status().isOk())
+                .andExpect(view().name("dateTasks"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("tasks"))
+                .andExpect(model().attributeExists("taskDto"))
+                .andExpect(model().attributeExists("userId"))
+                .andExpect(model().attributeExists("hasErrors"));
+
+        verify(taskService, times(0)).updateTask(any(), any());
+    }
+
+    @Test
+    public void shouldSuccessUpdateTaskWithValidationErrorAndRedirect() throws Exception {
+        doNothing().when(taskService).updateTask(TASK_ID, taskDto);
+
+        this.mockMvc.perform(post("/tasks/update/" + TASK_ID)
+                        .with(csrf())
+                        .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
+                        .param("title", taskDto.getTitle())
+                        .param("description", taskDto.getDescription())
+                        .param("date", String.valueOf(taskDto.getDate()))
+                        .param("userId", String.valueOf(userDto.getId()))
+                        .param("username", userDto.getUsername()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+
+        verify(taskService, times(1)).updateTask(any(), any());
+    }
 
     @Test
     public void shouldDeleteTask() throws Exception {
-        doNothing().when(taskService).deleteTaskById(taskId);
+        doNothing().when(taskService).deleteTaskById(TASK_ID);
 
-        this.mockMvc.perform(post("/tasks/delete/" + taskId)
+        this.mockMvc.perform(post("/tasks/delete/" + TASK_ID)
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
                         .param("userId", String.valueOf(userDto.getId())))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+
+        verify(taskService, times(1)).deleteTaskById(any());
     }
 
     @Test
     public void shouldCompleteTask() throws Exception {
-        doNothing().when(taskService).changeTaskStatus(taskId, TaskStatus.DONE);
+        doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.DONE);
 
-        this.mockMvc.perform(post("/tasks/complete/" + taskId)
+        this.mockMvc.perform(post("/tasks/complete/" + TASK_ID)
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
                         .param("userId", String.valueOf(userDto.getId())))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+
+        verify(taskService, times(1)).changeTaskStatus(any(), any());
     }
 
     @Test
     public void shouldCancelTask() throws Exception {
-        doNothing().when(taskService).changeTaskStatus(taskId, TaskStatus.CANCELED);
+        doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.CANCELED);
 
-        this.mockMvc.perform(post("/tasks/cancel/" + taskId)
+        this.mockMvc.perform(post("/tasks/cancel/" + TASK_ID)
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
                         .param("userId", String.valueOf(userDto.getId())))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/tasks/" + userDto.getId()));
+
+        verify(taskService, times(1)).changeTaskStatus(any(), any());
     }
 
     @Test
@@ -139,6 +227,8 @@ public class TaskControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("search"))
                 .andExpect(model().attributeExists("blankField"));
+
+        verify(taskService, times(0)).searchTasks(any(), any());
     }
 
     @Test
@@ -156,5 +246,7 @@ public class TaskControllerTest {
                 .andExpect(view().name("search"))
                 .andExpect(model().attributeExists("searchPerformed"))
                 .andExpect(model().attributeExists("tasks"));
+
+        verify(taskService, times(1)).searchTasks(any(), any());
     }
 }
