@@ -14,7 +14,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +51,7 @@ public class TaskController {
     public String addNewTask(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                              @PathVariable("userId") Long userId, @Valid @ModelAttribute("taskDto") TaskDto taskDto,
                              BindingResult bindingResult, Model model) {
-        if(bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("tasks", taskService.getTasksByUserIdAndDate(userId, date));
             model.addAttribute("hasErrors", true);
@@ -63,8 +62,20 @@ public class TaskController {
     }
 
     @PostMapping("/update/{taskId}")
-    public String updateTask(@PathVariable("taskId") Long taskId, @ModelAttribute TaskDto taskDto,
-                             @RequestParam("userId") Long userId) {
+    public String updateTask(@PathVariable("taskId") Long taskId,
+                             @RequestParam("userId") Long userId,
+                             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                             @Valid @ModelAttribute("taskDto") TaskDto taskDto,
+                             BindingResult bindingResult,
+                             Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("error", "Please correct any errors in the form");
+            model.addAttribute("tasks", taskService.getTasksByUserIdAndDate(userId, date));
+            model.addAttribute("taskDto", taskDto);
+            model.addAttribute("userId", userId);
+            model.addAttribute("hasErrors", true);
+            return "dateTasks";
+        }
         taskService.updateTask(taskId, taskDto);
         return "redirect:/tasks/" + userId;
     }
@@ -90,7 +101,7 @@ public class TaskController {
     @GetMapping("/{userId}/search")
     public String searchTasks(@PathVariable("userId") Long userId,
                               @RequestParam(value = "query", required = false) String keyword, Model model) {
-        if(keyword != null && keyword.isBlank()) {
+        if (keyword != null && keyword.isBlank()) {
             model.addAttribute("blankField", true);
             return "search";
         }

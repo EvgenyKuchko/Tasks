@@ -89,6 +89,7 @@
             <!-- Кнопка "Изменить" с данными -->
             <button class="openUpdateModal"
                     th:data-id="${task.id}"
+                    th:data-task-username="${task.username}"
                     th:data-title="${task.title}"
                     th:data-description="${task.description}"
                     th:data-status="${task.status.name()}"
@@ -129,22 +130,36 @@
     <div class="modal-content">
         <span class="close">&times;</span>
         <h2>Редактировать задачу</h2>
-        <form id="updateTaskForm" th:action="@{/tasks/update/}" method="post">
-            <input type="hidden" name="taskId" id="updateTaskId">
+
+        <div th:if="${error}" class="error-message" style="color: red;">
+            <p th:text="${error}"></p>
+        </div>
+
+        <form id="updateTaskForm" th:action="@{/tasks/update/{taskId}(taskId=${taskId})}"
+              method="post" th:object="${taskDto}">
+
             <input type="hidden" name="userId" th:value="${userId}">
+            <input type="hidden" id="taskId" name="id" th:field="*{id}">
+            <input type="hidden" id="updateTaskUsername" name="username" th:field="*{username}">
 
-            <label>Название:</label>
-            <input type="text" name="title" id="updateTaskTitle" required> <br><br>
+            <label for="updateTaskTitle">Название:</label>
+            <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
+            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red;"></span>
+            <br><br>
 
-            <label>Описание:</label>
-            <textarea name="description" id="updateTaskDescription" required></textarea> <br><br>
+            <label for="updateTaskDescription">Описание:</label>
+            <textarea name="description" id="updateTaskDescription" th:field="*{description}"></textarea>
+            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red;"></span>
+            <br><br>
 
-            <label>Дата:</label>
-            <input type="date" name="date" id="updateTaskDate" required> <br><br>
+            <label for="updateTaskDate">Дата:</label>
+            <input type="date" name="date" id="updateTaskDate" th:field="*{date}">
+            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" style="color: red;"></span>
+            <br><br>
 
             <button type="submit">Обновить</button>
         </form>
-        <input type="hidden" id="validationErrorUpdate" th:value="${updateTaskId != null ? 'true' : 'false'}">
+        <input type="hidden" id="validationErrorUpdate" th:value="${taskId != null ? 'true' : 'false'}">
     </div>
 </div>
 
@@ -214,16 +229,18 @@
         // =========================
         // Модальное окно редактирования задачи
         // =========================
-        setupModalEvents("updateTaskModal", "updateTaskModal", ".close", "validationErrorUpdate");
+        setupModalEvents("openUpdateTaskModal", "updateTaskModal", ".close", "validationErrorUpdate");
 
         document.querySelectorAll(".openUpdateModal").forEach(button => {
             button.addEventListener("click", function () {
                 let taskId = this.getAttribute("data-id");
+                let username = this.getAttribute("data-task-username");
                 let title = this.getAttribute("data-title");
                 let description = this.getAttribute("data-description");
                 let date = this.getAttribute("data-date");
 
-                document.getElementById("updateTaskId").value = taskId;
+                document.getElementById("taskId").value = taskId;
+                document.getElementById("updateTaskUsername").value = username;
                 document.getElementById("updateTaskTitle").value = title;
                 document.getElementById("updateTaskDescription").value = description;
                 document.getElementById("updateTaskDate").value = date;
