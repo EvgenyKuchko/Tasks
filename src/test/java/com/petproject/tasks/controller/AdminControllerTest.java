@@ -35,7 +35,6 @@ public class AdminControllerTest {
     private UserService userService;
 
     private UserDto userDto;
-    private List<SimpleGrantedAuthority> adminRole;
 
     @BeforeEach
     public void setUp() {
@@ -44,7 +43,6 @@ public class AdminControllerTest {
                 .firstName("Mike")
                 .username("admin123")
                 .password("adm123")
-                .roles(Set.of(UserRole.USER, UserRole.ADMIN))
                 .build();
     }
 
