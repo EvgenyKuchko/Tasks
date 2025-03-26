@@ -9,14 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -47,7 +42,7 @@ public class AdminControllerTest {
     }
 
     @Test
-    public void shouldShowAdminPage() throws Exception {
+    public void testShowAdminPage_AdminRole_ReturnPage() throws Exception {
         this.mockMvc.perform(get("/admin").with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.ADMIN.name()))))
                 .andExpect(status().isOk())
@@ -55,7 +50,7 @@ public class AdminControllerTest {
     }
 
     @Test
-    public void shouldBanAccessToPageWithUserRole() throws Exception {
+    public void testShowAdminPage_UserRole_Error() throws Exception {
         this.mockMvc.perform(get("/admin").with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.USER.name()))))
                 .andExpect(status().is4xxClientError());

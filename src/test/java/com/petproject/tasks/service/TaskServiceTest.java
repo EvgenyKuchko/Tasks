@@ -71,29 +71,31 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldReturnTaskDtoByUserId() {
+    public void testGetTasksByUserId_Success_TransformToDtoAndReturn() {
         when(taskRepository.getTasksByUserId(USER_ID)).thenReturn(tasks);
 
         List<TaskDto> resultingTask = taskService.getTasksByUserId(USER_ID);
 
         verify(taskRepository, times(1)).getTasksByUserId(USER_ID);
+        verify(taskTransformer, times(1)).transform(task);
         verifyNoMoreInteractions(taskRepository);
         assertThat(resultingTask.size()).isEqualTo(tasks.size());
     }
 
     @Test
-    public void shouldReturnTaskDtoByUserIdAndDate() {
+    public void testGetTasksByUserIdAndDate_Success_TransformToDtoAndReturn() {
         when(taskRepository.getTasksByUserIdAndDate(USER_ID, DATE)).thenReturn(tasks);
 
         List<TaskDto> resultingTasks = taskService.getTasksByUserIdAndDate(USER_ID, DATE);
 
         verify(taskRepository, times(1)).getTasksByUserIdAndDate(USER_ID, DATE);
+        verify(taskTransformer, times(1)).transform(task);
         verifyNoMoreInteractions(taskRepository);
         assertThat(resultingTasks.size()).isEqualTo(tasks.size());
     }
 
     @Test
-    public void shouldSaveTaskByUserIdAndDate() {
+    public void testSaveTaskByUserIdAndDate_Success_TransformToPOJOAndReturn() {
         when(taskTransformer.transform(taskDto)).thenReturn(task);
         when(userRepository.getReferenceById(USER_ID)).thenReturn(user);
 
@@ -109,7 +111,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldUpdateTaskWithoutErrors() {
+    public void testUpdateTask_Success_TaskUpdatedAndSaved() {
         when(taskRepository.findById(TASK_ID)).thenReturn(Optional.ofNullable(task));
 
         taskService.updateTask(TASK_ID, taskDto);
@@ -123,7 +125,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldFailUpdateTaskAndThrowEntityNotFoundException() {
+    public void testUpdateTask_FailWithEntityNotFoundException_ObjectDidNotSave() {
         when(taskRepository.findById(TASK_ID)).thenReturn(Optional.empty());
 
         Throwable exception = assertThrows(EntityNotFoundException.class, () -> taskService.updateTask(TASK_ID, taskDto));
@@ -134,7 +136,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldDeleteTaskById() {
+    public void testDeleteTaskById_Success_TaskDeleted() {
         taskService.deleteTaskById(TASK_ID);
 
         verify(taskRepository, times(1)).deleteById(TASK_ID);
@@ -142,7 +144,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldChangeTaskStatus() {
+    public void testChangeTaskStatus_Success_StatusChanged() {
         taskService.changeTaskStatus(TASK_ID, TaskStatus.CANCELED);
 
         verify(taskRepository, times(1)).changeTaskStatus(TASK_ID, TaskStatus.CANCELED);
@@ -150,7 +152,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void ShouldReturnAllTasks() {
+    public void testFindAllTasks_Success_TasksReturned() {
         when(taskRepository.findAll()).thenReturn(tasks);
 
         List<TaskDto> resultingTasks = taskService.findAllTasks();
@@ -162,7 +164,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldReturnTasksByKeyword() {
+    public void testSearchTasks_Success_ReturnTaskByKeyword() {
         when(taskRepository.searchTasks(USER_ID, KEYWORD)).thenReturn(tasks);
 
         List<TaskDto> resultingTasks = taskService.searchTasks(USER_ID, KEYWORD);
@@ -174,7 +176,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldReturnEmptyList() {
+    public void testSearchTasks_Success_ReturnEmptyList() {
         when(taskRepository.searchTasks(USER_ID, KEYWORD)).thenReturn(Collections.emptyList());
 
         List<TaskDto> resultingTasks = taskService.searchTasks(USER_ID, KEYWORD);
@@ -186,7 +188,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldNewTask() {
+    public void testSaveNewTask_Success_TransformToPOJOAndSaved() {
         when(taskTransformer.transform(taskDto)).thenReturn(task);
         when(userRepository.findByUsername(taskDto.getUsername())).thenReturn(user);
 
@@ -202,7 +204,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldReturnActiveTasksForCalendar() {
+    public void testGetEvents_Success_ReturnEventsWithActiveTasks() {
         Long userId = 1L;
         LocalDate dateOne = LocalDate.of(2025, 3, 13);
         LocalDate dateTwo = LocalDate.of(2025, 3, 14);
@@ -240,7 +242,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void shouldReturnTasksFilteredByKeywordAndDate() {
+    public void testGetFilteredTasks_Success_ReturnTasksByKeyword() {
         User user1 = User.builder()
                 .username("kevin11")
                 .build();

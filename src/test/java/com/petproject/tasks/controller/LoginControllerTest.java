@@ -24,7 +24,7 @@ public class LoginControllerTest {
     private UserService userService;
 
     @Test
-    public void shouldReturnLoginPage() throws Exception {
+    public void testShowLoginForm_ReturnLoginPage() throws Exception {
         this.mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"));

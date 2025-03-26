@@ -65,7 +65,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTaskByUserId() {
+    public void testGetTaskByUserId_Success_ReturnTaskById() {
         List<Task> foundTask = taskRepository.getTasksByUserId(user.getId());
 
         assertThat(foundTask).isNotNull();
@@ -75,7 +75,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTaskByUserIdAndDate() {
+    public void testGetTaskByUserIdAndDate_Success_ReturnTaskByUserIdAndDate() {
         List<Task> foundTask = taskRepository.getTasksByUserIdAndDate(user.getId(), DATE);
 
         assertThat(foundTask).isNotNull();
@@ -85,7 +85,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTaskById() {
+    public void testFindTaskById_Success_ReturnTaskById() {
         Optional<Task> foundTask = taskRepository.findById(task.getId());
 
         assertThat(foundTask).isNotNull();
@@ -95,7 +95,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldChangeTaskStatus() {
+    public void testChangeTaskStatus_Success_ChangeStatusToDone() {
         taskRepository.changeTaskStatus(task.getId(), TaskStatus.DONE);
         taskRepository.flush();
         entityManager.clear();
@@ -107,7 +107,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTasksByKeyword() {
+    public void testSearchTask_Success_returnTaskByKeyword() {
         List<Task> foundTasks = taskRepository.searchTasks(user.getId(), "cake");
 
         assertThat(foundTasks).isNotNull();
@@ -117,7 +117,7 @@ public class TaskRepositoryTest {
     }
 
     @Test
-    public void shouldReturnAllTasks() {
+    public void testFindAll_Success_returnAllTasks() {
         List<Task> foundTasks = taskRepository.findAll();
 
         assertThat(foundTasks).isNotNull();

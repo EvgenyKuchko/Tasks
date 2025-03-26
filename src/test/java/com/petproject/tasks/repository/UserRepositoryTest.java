@@ -33,7 +33,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void shouldReturnUserByUsername() {
+    public void testFindByUsername_Success_ReturnUserByUsername() {
         User foundUser = userRepository.findByUsername(user.getUsername());
 
         assertThat(foundUser).isNotNull();
@@ -42,7 +42,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-    public void shouldReturnAllUsers() {
+    public void testFindAll_Success_ReturnAllUsers() {
         List<User> foundUsers = userRepository.findAll();
 
         assertThat(foundUsers).isNotNull();

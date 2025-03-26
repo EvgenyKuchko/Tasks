@@ -40,7 +40,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void shouldShowRegistrationPage() throws Exception {
+    public void testShowRegistrationForm_Success_ReturnRegistrationPage() throws Exception {
         this.mockMvc.perform(get("/register"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"))
@@ -48,7 +48,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void shouldSuccessRegisterUserAndRedirectToLoginPage() throws Exception {
+    public void testRegisterUser_Success_RedirectToLoginPage() throws Exception {
         when(userService.existsUsername(userDto.getUsername())).thenReturn(false);
 
         this.mockMvc.perform(post("/register").with(csrf())
@@ -60,7 +60,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void shouldNotBeAbleToPassExistsUsernameCheck() throws Exception {
+    public void testRegisterUser_FailWithUsernameAlreadyExists_ReturnPageWithErrors() throws Exception {
         Mockito.when(userService.existsUsername(userDto.getUsername())).thenReturn(true);
 
         this.mockMvc.perform(post("/register").with(csrf())
@@ -74,7 +74,7 @@ public class RegistrationControllerTest {
     }
 
     @Test
-    public void shouldNotAbleToPassBindingResultErrors() throws Exception {
+    public void testRegisterUser_FailValidationErrors_ReturnPageWithErrors() throws Exception {
         this.mockMvc.perform(post("/register").with(csrf())
                         .param("firstName", " ")
                         .param("username", "us")

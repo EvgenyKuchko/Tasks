@@ -52,7 +52,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldOpenUsersPage() throws Exception {
+    public void testShowUserPage_Success_ReturnPage() throws Exception {
         when(userService.getFilteredUsers("", "")).thenReturn(users);
 
         this.mockMvc.perform(get("/admin/users")
@@ -70,7 +70,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldSuccessCreateNewUserAndRedirect() throws Exception {
+    public void testCreateNewUser_Success_RedirectToUsersPage() throws Exception {
         User user = new User();
 
         when(userService.registerUser(userDto)).thenReturn(user);
@@ -88,7 +88,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldFailCreateNewUserWithValidationError() throws Exception {
+    public void testCreateNewUser_FailWithValidationError_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/admin/users/create")
                         .with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.ADMIN.name())))
@@ -98,6 +98,7 @@ public class AdminUsersControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("users"))
                 .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeHasFieldErrors("userDto", "username"))
                 .andExpect(model().attributeExists("users"))
                 .andExpect(model().attributeExists("userDto"))
                 .andExpect(model().attributeExists("hasErrors"));
@@ -106,7 +107,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldAddOrRemoveAdminRole() throws Exception {
+    public void testAddOrRemoveAdminRole_Success_RedirectToUsersPage() throws Exception {
         doNothing().when(userService).addOrRemoveAdminRole(userDto.getId());
 
         this.mockMvc.perform(post("/admin/users/" + userDto.getId())
@@ -119,7 +120,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldDeleteUser() throws Exception {
+    public void testDeleteUser_Success_RedirectToUsersPage() throws Exception {
         doNothing().when(userService).deleteUserByUserId(userDto.getId());
 
         this.mockMvc.perform(post("/admin/users/" + userDto.getId() + "/delete")
@@ -132,7 +133,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldSuccessUpdateUserAndRedirect() throws Exception {
+    public void testUpdateUser_Success_RedirectToUsersPage() throws Exception {
         doNothing().when(userService).updateUser(userDto.getId(), userDto);
 
         this.mockMvc.perform(post("/admin/users/" + userDto.getId() + "/update")
@@ -147,7 +148,7 @@ public class AdminUsersControllerTest {
     }
 
     @Test
-    public void shouldFailUpdateUserWithValidationErrors() throws Exception {
+    public void testUpdateUser_FailWithValidationErrors_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/admin/users/" + userDto.getId() + "/update")
                         .with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.ADMIN.name())))
@@ -156,6 +157,7 @@ public class AdminUsersControllerTest {
                         .param("password", "222"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("users"))
+                .andExpect(model().attributeHasFieldErrors("userDto", "firstName", "password"))
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("users"))
                 .andExpect(model().attributeExists("userDto"))

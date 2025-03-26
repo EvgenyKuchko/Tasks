@@ -74,7 +74,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldOpenTasksPage() throws Exception {
+    public void testShowAdminTasksPage_Success_ReturnPage() throws Exception {
         String keyword = "keyword";
         String username = "username";
         LocalDate date = LocalDate.now();
@@ -99,7 +99,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldSuccessUpdateTask() throws Exception {
+    public void testUpdateTask_Success_RedirectToTasksPage() throws Exception {
         doNothing().when(taskService).updateTask(TASK_ID, taskDto);
 
         this.mockMvc.perform(post("/admin/tasks/" + TASK_ID + "/update")
@@ -116,7 +116,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldFailUpdateTaskWithValidationErrors() throws Exception {
+    public void testUpdateTask_FailWithValidationErrors_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/admin/tasks/" + TASK_ID + "/update")
                         .with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.ADMIN.name())))
@@ -126,6 +126,7 @@ public class AdminTasksControllerTest {
                         .param("username", userDto.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("tasks"))
+                .andExpect(model().attributeHasFieldErrors("taskDto", "title"))
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("tasks"))
                 .andExpect(model().attributeExists("taskDto"))
@@ -133,7 +134,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldCompleteTask() throws Exception {
+    public void testCompleteTask_Success_RedirectToTasksPage() throws Exception {
         doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.DONE);
 
         this.mockMvc.perform(post("/admin/tasks/" + TASK_ID + "/complete")
@@ -146,7 +147,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldCancelTask() throws Exception {
+    public void testCancelTask_Success_RedirectToTasksPage() throws Exception {
         doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.CANCELED);
 
         this.mockMvc.perform(post("/admin/tasks/" + TASK_ID + "/cancel")
@@ -159,7 +160,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldDeleteTask() throws Exception {
+    public void testDeleteTask_Success_RedirectToTasksPage() throws Exception {
         doNothing().when(taskService).deleteTaskById(TASK_ID);
 
         this.mockMvc.perform(post("/admin/tasks/" + TASK_ID + "/delete")
@@ -172,7 +173,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldSuccessCreateNewTask() throws Exception {
+    public void testSuccessCreateNewTask_Success_RedirectToTasksPage() throws Exception {
         doNothing().when(taskService).saveNewTask(taskDto);
 
         this.mockMvc.perform(post("/admin/tasks/create")
@@ -189,7 +190,7 @@ public class AdminTasksControllerTest {
     }
 
     @Test
-    public void shouldFailCreateNewTaskWithValidationErrors() throws Exception {
+    public void testCreateNewTask_FailWithValidationErrors_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/admin/tasks/create")
                         .with(csrf())
                         .with(user(userDto.getUsername()).authorities(new SimpleGrantedAuthority(UserRole.ADMIN.name())))
@@ -199,10 +200,13 @@ public class AdminTasksControllerTest {
                         .param("username", userDto.getUsername()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("tasks"))
+                .andExpect(model().attributeHasFieldErrors("taskDto", "title", "description"))
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("tasks"))
                 .andExpect(model().attributeExists("taskDto"))
                 .andExpect(model().attributeExists("usernames"))
                 .andExpect(model().attributeExists("hasErrors"));
+
+        verify(taskService, times(0)).saveNewTask(any());
     }
 }

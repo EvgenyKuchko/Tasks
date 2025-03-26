@@ -16,10 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -66,7 +63,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldReturnCalendarPage() throws Exception {
+    public void testShowCalendarPage_Success_ReturnCalendarPage() throws Exception {
         List<Map<String, String>> events = List.of(
                 Map.of("title", "🔹 2 задачи", "start", "2025-03-21"),
                 Map.of("title", "🔹 1 задача", "start", "2025-03-22")
@@ -86,7 +83,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldReturnTasksListByDate() throws Exception {
+    public void testShowTasksListByDate_Success_ReturnDateTasksPage() throws Exception {
         LocalDate taskDate = LocalDate.of(2025, 3, 21);
 
         List<TaskDto> tasks = new ArrayList<>(List.of(
@@ -105,7 +102,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldFailAddNewTaskWithValidationErrorAndReturnSamePage() throws Exception {
+    public void testAddNewTask_FailWithValidationErrors_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/tasks/" + userDto.getId() + "/" + taskDto.getDate())
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
@@ -114,6 +111,7 @@ public class TaskControllerTest {
                         .param("date", String.valueOf(taskDto.getDate())))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dateTasks"))
+                .andExpect(model().attributeHasFieldErrors("taskDto", "description"))
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("tasks"))
                 .andExpect(model().attributeExists("hasErrors"));
@@ -122,7 +120,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldSuccessCreateNewTaskAndRedirect() throws Exception {
+    public void testAddNewTask_Success_RedirectToCalendarPage() throws Exception {
         doNothing().when(taskService).saveTaskByUserIdAndDate(taskDto, userDto.getId(), taskDto.getDate());
 
         this.mockMvc.perform(post("/tasks/" + userDto.getId() + "/" + taskDto.getDate())
@@ -139,7 +137,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldFailUpdateTaskWithValidationErrorAndReturnSamePage() throws Exception {
+    public void testUpdateTask_FailWithValidationErrors_ReturnFormWithErrors() throws Exception {
         this.mockMvc.perform(post("/tasks/update/" + TASK_ID)
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
@@ -149,6 +147,7 @@ public class TaskControllerTest {
                         .param("userId", String.valueOf(userDto.getId())))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dateTasks"))
+                .andExpect(model().attributeHasFieldErrors("taskDto", "description"))
                 .andExpect(model().attributeExists("error"))
                 .andExpect(model().attributeExists("tasks"))
                 .andExpect(model().attributeExists("taskDto"))
@@ -159,7 +158,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldSuccessUpdateTaskWithValidationErrorAndRedirect() throws Exception {
+    public void testUpdateTask_Success_RedirectToCalendarPage() throws Exception {
         doNothing().when(taskService).updateTask(TASK_ID, taskDto);
 
         this.mockMvc.perform(post("/tasks/update/" + TASK_ID)
@@ -177,7 +176,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldDeleteTask() throws Exception {
+    public void testDeleteTask_Success_RedirectToCalendarPage() throws Exception {
         doNothing().when(taskService).deleteTaskById(TASK_ID);
 
         this.mockMvc.perform(post("/tasks/delete/" + TASK_ID)
@@ -191,7 +190,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldCompleteTask() throws Exception {
+    public void testCompleteTask_Success_RedirectToCalendarPage() throws Exception {
         doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.DONE);
 
         this.mockMvc.perform(post("/tasks/complete/" + TASK_ID)
@@ -205,7 +204,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldCancelTask() throws Exception {
+    public void testCancelTask_Success_RedirectToCalendarPage() throws Exception {
         doNothing().when(taskService).changeTaskStatus(TASK_ID, TaskStatus.CANCELED);
 
         this.mockMvc.perform(post("/tasks/cancel/" + TASK_ID)
@@ -219,7 +218,7 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldSearchTasksWithBlankKeyword() throws Exception {
+    public void testSearchTasks_BlankKeyword_ReturnEmptyList() throws Exception {
         this.mockMvc.perform(get("/tasks/" + userDto.getId() + "/search")
                         .with(csrf())
                         .with(user(userDto.getUsername()).password(userDto.getPassword()).roles(String.valueOf(userDto.getRoles())))
@@ -232,9 +231,9 @@ public class TaskControllerTest {
     }
 
     @Test
-    public void shouldSearchTasksWithKeywordAndReturnEmptyTasksList() throws Exception {
-        String keyword = "training";
-        List<TaskDto> tasks = Collections.emptyList();
+    public void testSearchTasks_Keyword_ReturnTasksList() throws Exception {
+        String keyword = taskDto.getTitle();
+        List<TaskDto> tasks = List.of(taskDto);
 
         when(taskService.searchTasks(userDto.getId(), keyword)).thenReturn(tasks);
 
