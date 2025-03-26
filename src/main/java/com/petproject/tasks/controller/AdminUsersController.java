@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class AdminUsersController {
     }
 
     @PostMapping("/users/create")
-    public String createNewUser(@Valid @ModelAttribute UserDto userDto,
+    public String createNewUser(@Validated(UserDto.OnCreate.class) @ModelAttribute UserDto userDto,
                                 BindingResult bindingResult,
                                 Model model) {
 
@@ -66,11 +67,11 @@ public class AdminUsersController {
 
     @PostMapping("/users/{userId}/update")
     public String updateUser(@PathVariable Long userId,
-                             @Valid @ModelAttribute("userDto") UserDto userDto,
+                             @Validated(UserDto.OnUpdate.class) @ModelAttribute("userDto") UserDto userDto,
                              BindingResult bindingResult,
                              Model model) {
-        if (userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
-            bindingResult.rejectValue("password", null);
+        if (userDto.getPassword() == null || userDto.getPassword().isBlank()) {
+            userDto.setPassword(null);
         }
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
