@@ -23,7 +23,7 @@ public class TaskTransformerTest {
     private final LocalDate DATE = LocalDate.parse("2025-05-07");
 
     @Test
-    public void shouldTransformTaskToTaskDto() {
+    public void testTransformTaskToTaskDto_Success_TransformAndReturnDto() {
         User user = User.builder()
                 .firstName("Ali")
                 .username("aliali")
@@ -48,7 +48,7 @@ public class TaskTransformerTest {
     }
 
     @Test
-    public void shouldTransformTaskDtoToTask() {
+    public void testTransformTaskDtoToTask_Success_TransformAndReturnPOJO() {
         TaskDto taskDto = TaskDto.builder()
                 .title(TITLE)
                 .description(DESCRIPTION)

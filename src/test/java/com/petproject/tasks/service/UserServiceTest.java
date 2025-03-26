@@ -1,6 +1,9 @@
 package com.petproject.tasks.service;
 
+import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
+import com.petproject.tasks.entity.Task;
+import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.entity.User;
 import com.petproject.tasks.entity.UserRole;
 import com.petproject.tasks.repository.UserRepository;
@@ -57,7 +60,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldSaveUserOnRegistration() {
+    public void testRegisterUser_Success_TransformToPOJOAndSaved() {
         when(userRepository.findByUsername(USERNAME)).thenReturn(null);
         when(userTransformer.transform(userDto)).thenReturn(user);
         when(bCryptPasswordEncoder.encode(userDto.getPassword())).thenReturn(ENCODED_PASS);
@@ -79,7 +82,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailSaveUserOnRegistrationWithUsername() {
+    public void testRegisterUser_FailWithUsernameAlreadyTakenException_DidNotSave() {
         when(userRepository.findByUsername(USERNAME)).thenReturn(user);
 
         Throwable usernameAlreadyTakenEx = assertThrows(RuntimeException.class, () -> userService.registerUser(userDto));
@@ -93,7 +96,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailLoadUserByUsername() {
+    public void testLoadUserByUsername_FailWithUserNotFoundException_DidNotReturnUser() {
         when(userRepository.findByUsername(USERNAME)).thenReturn(null);
 
         Throwable usernameNotFoundEx = assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername(USERNAME));
@@ -105,7 +108,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldLoadUserByUsernameAndReturnUser() {
+    public void testLoadUserByUsername_Success_TransformToDtoAndReturn() {
         when(userRepository.findByUsername(USERNAME)).thenReturn(user);
         when(userTransformer.transform(user)).thenReturn(userDto);
 
@@ -119,7 +122,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldGetAndReturnUserById() {
+    public void testGetUserById_Success_TransformToDtoAndReturn() {
         when(userRepository.getReferenceById(USER_ID)).thenReturn(user);
         when(userTransformer.transform(user)).thenReturn(userDto);
 
@@ -133,7 +136,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFindAndReturnUserByUsername() {
+    public void testGetUserByUsername_Success_TransformAndReturn() {
         when(userRepository.findByUsername(USERNAME)).thenReturn(user);
         when(userTransformer.transform(user)).thenReturn(userDto);
 
@@ -147,7 +150,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldReturnAllUsers() {
+    public void testGetAllUsers_Success_TransformToDtoAndReturnListOfUsers() {
         List<User> DBUsers = new ArrayList<>();
         User userOne = User.builder()
                 .firstName("Say")
@@ -170,7 +173,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailAddAdminRoleAndThrowUserNotFoundEx() {
+    public void testAddOrRemoveAdminRole_FailWithUserNotFoundException_DidNotAddOrRemoveAdminRole() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         Throwable userNotFoundEx = assertThrows(RuntimeException.class, () -> userService.addOrRemoveAdminRole(USER_ID));
@@ -182,7 +185,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void ShouldSuccessAddAdminRoleToUser() {
+    public void testAddOrRemoveAdminRole_Success_AddAdminRole() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.ofNullable(user));
 
         userService.addOrRemoveAdminRole(USER_ID);
@@ -195,7 +198,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void ShouldSuccessRemoveAdminRoleToUser() {
+    public void testAddOrRemoveAdminRole_Success_RemoveAdminRole() {
         Set<UserRole> roles = new HashSet<>(user.getRoles());
         roles.add(UserRole.ADMIN);
         user.setRoles(roles);
@@ -212,7 +215,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldSuccessRemoveUserById() {
+    public void testDeleteUserByUserId_Success_DeletedUserById() {
         userService.deleteUserByUserId(USER_ID);
 
         verify(userRepository, times(1)).deleteById(USER_ID);
@@ -220,7 +223,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldFailUpdateAndThrowUserNotFoundEx() {
+    public void testUpdateUser_FailWithUserNotFoundException_DidNotUpdate() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
         Throwable userNotFoundEx = assertThrows(RuntimeException.class, () -> userService.updateUser(USER_ID, userDto));
@@ -232,7 +235,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void shouldSuccessUpdateUsernameAndPasswordAndSaveUser() {
+    public void testUpdateUser_Success_UserUpdated() {
         UserDto updatedUserDto = UserDto.builder()
                 .username("skydiver")
                 .password("sky96diver")
@@ -249,5 +252,47 @@ public class UserServiceTest {
 
         assertThat(user.getPassword()).isEqualTo(ENCODED_PASS);
         assertThat(user.getUsername()).isEqualTo(updatedUserDto.getUsername());
+    }
+
+    @Test
+    public void testGetFilteredUsers_Success_FindTransformedToDtoAndReturnList() {
+        Set<Task> tasks = new HashSet<>();
+
+        User user1 = new User(1L, "oscar99", "qqqqq", "oscar", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user2 = new User(2L, "stan00", "stan71", "stan", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user3 = new User(3L, "chany43", "chanyy", "chan", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user4 = new User(4L, "koly2", "asdwq", "koly", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+
+        List<User> mockUsers = Arrays.asList(user1, user2, user3, user4);
+
+        UserDto userDto1 = new UserDto(1L, "oscar99", "qqqqq", "oscar", new HashSet<>(Collections.singleton(UserRole.USER)));
+        UserDto userDto2 = new UserDto(2L, "stan00", "stan71", "stan", new HashSet<>(Collections.singleton(UserRole.USER)));
+        UserDto userDto3 = new UserDto(3L, "chany43", "chanyy", "chan", new HashSet<>(Collections.singleton(UserRole.ADMIN)));
+        UserDto userDto4 = new UserDto(4L, "koly2", "asdwq", "koly", new HashSet<>(Collections.singleton(UserRole.USER)));
+
+        when(userRepository.findAll()).thenReturn(mockUsers);
+        when(userTransformer.transform(user1)).thenReturn(userDto1);
+        when(userTransformer.transform(user2)).thenReturn(userDto2);
+        when(userTransformer.transform(user3)).thenReturn(userDto3);
+        when(userTransformer.transform(user4)).thenReturn(userDto4);
+
+        List<UserDto> resultingUsers = userService.getFilteredUsers("stan00", "USER");
+
+        assertThat(resultingUsers.size()).isEqualTo(1);
+        assertThat(resultingUsers.contains(userDto2)).isEqualTo(true);
+
+        verify(userRepository, times(1)).findAll();
+        verify(userTransformer, times(4)).transform(any(User.class));
+    }
+
+    @Test
+    public void testExistUsername_Success_ReturnTrue() {
+        when(userRepository.existsByUsername(USERNAME)).thenReturn(true);
+
+        boolean result = userService.existsUsername(USERNAME);
+
+        assertThat(result).isEqualTo(true);
+
+        verify(userRepository, times(1)).existsByUsername(any());
     }
 }

@@ -23,7 +23,7 @@ public class UserTransformerTest {
     private final String PASSWORD = "12345";
 
     @Test
-    public void shouldTransformUserToUserDto() {
+    public void testTransformUserToUserDto_Success_TransformAndReturnDto() {
         User user = User.builder()
                 .firstName(FIRSTNAME)
                 .username(USERNAME)
@@ -41,7 +41,7 @@ public class UserTransformerTest {
     }
 
     @Test
-    public void shouldTransformUserDtoToUser() {
+    public void testTransformUserDtoToUser_Success_TransformAndReturnPOJO() {
         UserDto userDto = UserDto.builder()
                 .firstName(FIRSTNAME)
                 .username(USERNAME)
