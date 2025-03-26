@@ -1,6 +1,9 @@
 package com.petproject.tasks.service;
 
+import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
+import com.petproject.tasks.entity.Task;
+import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.entity.User;
 import com.petproject.tasks.entity.UserRole;
 import com.petproject.tasks.repository.UserRepository;
@@ -249,5 +252,36 @@ public class UserServiceTest {
 
         assertThat(user.getPassword()).isEqualTo(ENCODED_PASS);
         assertThat(user.getUsername()).isEqualTo(updatedUserDto.getUsername());
+    }
+
+    @Test
+    public void shouldReturnFilteredUsers() {
+        Set<Task> tasks = new HashSet<>();
+
+        User user1 = new User(1L, "oscar99", "qqqqq", "oscar", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user2 = new User(2L, "stan00", "stan71", "stan", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user3 = new User(3L, "chany43", "chanyy", "chan", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+        User user4 = new User(4L, "koly2", "asdwq", "koly", new HashSet<>(Collections.singleton(UserRole.USER)), tasks);
+
+        List<User> mockUsers = Arrays.asList(user1, user2, user3, user4);
+
+        UserDto userDto1 = new UserDto(1L, "oscar99", "qqqqq", "oscar", new HashSet<>(Collections.singleton(UserRole.USER)));
+        UserDto userDto2 = new UserDto(2L, "stan00", "stan71", "stan", new HashSet<>(Collections.singleton(UserRole.USER)));
+        UserDto userDto3 = new UserDto(3L, "chany43", "chanyy", "chan", new HashSet<>(Collections.singleton(UserRole.ADMIN)));
+        UserDto userDto4 = new UserDto(4L, "koly2", "asdwq", "koly", new HashSet<>(Collections.singleton(UserRole.USER)));
+
+        when(userRepository.findAll()).thenReturn(mockUsers);
+        when(userTransformer.transform(user1)).thenReturn(userDto1);
+        when(userTransformer.transform(user2)).thenReturn(userDto2);
+        when(userTransformer.transform(user3)).thenReturn(userDto3);
+        when(userTransformer.transform(user4)).thenReturn(userDto4);
+
+        List<UserDto> resultingUsers = userService.getFilteredUsers("stan00", "USER");
+
+        assertThat(resultingUsers.size()).isEqualTo(1);
+        assertThat(resultingUsers.contains(userDto2)).isEqualTo(true);
+
+        verify(userRepository, times(1)).findAll();
+        verify(userTransformer, times(4)).transform(any(User.class));
     }
 }

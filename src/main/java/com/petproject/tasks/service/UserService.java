@@ -112,4 +112,25 @@ public class UserService implements UserDetailsService {
     public boolean existsUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+
+    @Transactional
+    public List<UserDto> getFilteredUsers(String username, String role) {
+        List<UserDto> users = userRepository.findAll().stream()
+                .map(x -> userTransformer.transform(x))
+                .toList();
+
+        if (username != null && !username.isEmpty()) {
+            users = users.stream()
+                    .filter(user -> user.getUsername().toLowerCase().contains(username.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        if (role != null && !role.isEmpty()) {
+            users = users.stream()
+                    .filter(user -> user.getRoles().stream()
+                            .anyMatch(userRole -> userRole.name().equalsIgnoreCase(role)))
+                    .collect(Collectors.toList());
+        }
+        return users;
+    }
 }

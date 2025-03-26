@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,23 +26,8 @@ public class AdminUsersController {
     public String showUsersPage(@RequestParam(value = "username", required = false) String username,
                                 @RequestParam(value = "role", required = false) String role,
                                 Model model) {
-        List<UserDto> users = userService.getAllUsers();
-        List<String> allRoles = new ArrayList<>();
-        allRoles.add(UserRole.ADMIN.name());
-        allRoles.add(UserRole.USER.name());
-
-        if (username != null && !username.isEmpty()) {
-            users = users.stream()
-                    .filter(user -> user.getUsername().toLowerCase().contains(username.toLowerCase()))
-                    .collect(Collectors.toList());
-        }
-
-        if (role != null && !role.isEmpty()) {
-            users = users.stream()
-                    .filter(user -> user.getRoles().stream()
-                            .anyMatch(userRole -> userRole.name().equalsIgnoreCase(role)))
-                    .collect(Collectors.toList());
-        }
+        List<UserDto> users = userService.getFilteredUsers(username, role);
+        List<String> allRoles = Arrays.asList(UserRole.ADMIN.name(), UserRole.USER.name());
 
         model.addAttribute("users", users);
         model.addAttribute("allRoles", allRoles);
