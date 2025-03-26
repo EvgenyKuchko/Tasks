@@ -113,4 +113,31 @@ public class TaskService {
         task.setUser(userRepository.findByUsername(taskDto.getUsername()));
         taskRepository.save(task);
     }
+
+    @Transactional
+    public List<TaskDto> getFilteredTasks(String keyword, String username, LocalDate date) {
+        List<TaskDto> tasks = taskRepository.findAll().stream()
+                .map(x -> taskTransformer.transform(x)).sorted().collect(Collectors.toList());
+
+        if (keyword != null && !keyword.isEmpty()) {
+            String lowerKeyword = keyword.toLowerCase();
+            tasks = tasks.stream()
+                    .filter(taskDto -> taskDto.getTitle().toLowerCase().contains(lowerKeyword) ||
+                            taskDto.getDescription().toLowerCase().contains(lowerKeyword))
+                    .collect(Collectors.toList());
+        }
+
+        if (username != null && !username.isEmpty()) {
+            tasks = tasks.stream()
+                    .filter(taskDto -> taskDto.getUsername().equals(username))
+                    .collect(Collectors.toList());
+        }
+
+        if (date != null) {
+            tasks = tasks.stream()
+                    .filter(task -> task.getDate().equals(date))
+                    .collect(Collectors.toList());
+        }
+        return tasks;
+    }
 }

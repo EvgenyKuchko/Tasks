@@ -31,30 +31,10 @@ public class AdminTasksController {
     public String showAdminTasksPage(Model model, @RequestParam(value = "keyword", required = false) String keyword,
                                      @RequestParam(value = "username", required = false) String username,
                                      @RequestParam(value = "date", required = false) LocalDate date) {
-        List<TaskDto> tasks = taskService.findAllTasks();
+        List<TaskDto> tasks = taskService.getFilteredTasks(keyword, username, date);
         Set<String> usernames = userService.getAllUsers().stream()
                 .map(UserDto::getUsername)
                 .collect(Collectors.toSet());
-
-        if (keyword != null && !keyword.isEmpty()) {
-            String lowerKeyword = keyword.toLowerCase();
-            tasks = tasks.stream()
-                    .filter(taskDto -> taskDto.getTitle().toLowerCase().contains(lowerKeyword) ||
-                            taskDto.getDescription().toLowerCase().contains(lowerKeyword))
-                    .collect(Collectors.toList());
-        }
-
-        if (username != null && !username.isEmpty()) {
-            tasks = tasks.stream()
-                    .filter(taskDto -> taskDto.getUsername().equals(username))
-                    .collect(Collectors.toList());
-        }
-
-        if (date != null) {
-            tasks = tasks.stream()
-                    .filter(task -> task.getDate().equals(date))
-                    .collect(Collectors.toList());
-        }
 
         model.addAttribute("usernames", usernames);
         model.addAttribute("taskDto", new TaskDto());

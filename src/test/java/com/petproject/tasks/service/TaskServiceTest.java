@@ -236,7 +236,45 @@ public class TaskServiceTest {
         assertThat(events.get(1).get("start")).isEqualTo(dateOne.toString());
 
         verify(taskRepository, times(1)).getTasksByUserId(userId);
+        verify(taskTransformer, times(4)).transform(any(Task.class));
+    }
 
+    @Test
+    public void shouldReturnTasksFilteredByKeywordAndDate() {
+        User user1 = User.builder()
+                .username("kevin11")
+                .build();
+
+        LocalDate dateOne = LocalDate.of(2025, 3, 13);
+        LocalDate dateTwo = LocalDate.of(2025, 3, 14);
+
+        Task task1 = new Task(1L, "sport", "swimming", dateOne, TaskStatus.ACTIVE, user);
+        Task task2 = new Task(2L, "work", "project", dateOne, TaskStatus.ACTIVE, user);
+        Task task3 = new Task(3L, "sport", "tennis", dateOne, TaskStatus.DONE, user1);
+        Task task4 = new Task(4L, "relax", "spa", dateTwo, TaskStatus.ACTIVE, user);
+
+        List<Task> filteredTasks = Arrays.asList(task1, task2, task3, task4);
+
+        TaskDto taskDto1 = new TaskDto(1L, "sport", "swimming", dateOne, TaskStatus.ACTIVE, user.getUsername());
+        TaskDto taskDto2 = new TaskDto(2L, "work", "project", dateOne, TaskStatus.ACTIVE, user.getUsername());
+        TaskDto taskDto3 = new TaskDto(3L, "sport", "tennis", dateOne, TaskStatus.DONE, user1.getUsername());
+        TaskDto taskDto4 = new TaskDto(4L, "relax", "spa", dateTwo, TaskStatus.ACTIVE, user.getUsername());
+
+        when(taskRepository.findAll()).thenReturn(filteredTasks);
+        when(taskTransformer.transform(task1)).thenReturn(taskDto1);
+        when(taskTransformer.transform(task2)).thenReturn(taskDto2);
+        when(taskTransformer.transform(task3)).thenReturn(taskDto3);
+        when(taskTransformer.transform(task4)).thenReturn(taskDto4);
+
+        String keyword = "sport";
+
+        List<TaskDto> resultingTasks = taskService.getFilteredTasks(keyword, null, dateOne);
+
+        assertThat(resultingTasks.size()).isEqualTo(2);
+        assertThat(resultingTasks.contains(taskDto1)).isEqualTo(true);
+        assertThat(resultingTasks.contains(taskDto3)).isEqualTo(true);
+
+        verify(taskRepository, times(1)).findAll();
         verify(taskTransformer, times(4)).transform(any(Task.class));
     }
 }
