@@ -1,12 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
     <title>Admin</title>
 </head>
 <body>
-<h1>Admin Page</h1>
-<a href="/admin/users">users</a>
-<a href="/admin/tasks">tasks</a>
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a id="mainPageLink" href="#" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="titleAdmPage">
+            <h1>Administrator Page</h1>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="usersTasksContainer">
+            <div class="usersContainer">
+                <a class="usersLink" href="/admin/users">USERS</a>
+            </div>
+            <div class="tasksContainer">
+                <a class="tasksLink" href="/admin/tasks">TASKS</a>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    let userId = localStorage.getItem('userId');
+    document.getElementById('mainPageLink').href = `/tasks/${userId}`;
+</script>
 </body>
 </html>

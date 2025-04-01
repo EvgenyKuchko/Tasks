@@ -1,169 +1,193 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Задачи на дату</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        /* Стили для модального окна */
-        .modal {
-            display: none; /* Скрыто по умолчанию */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            width: 300px;
-            margin: 15% auto;
-            text-align: center;
-        }
-
-        .close {
-            color: red;
-            float: right;
-            cursor: pointer;
-        }
-    </style>
+    <title>Date tasks</title>
 </head>
 <body>
-<h2>Задачи на <span th:text="${date}"></span></h2>
-
-<!-- Кнопка для создания задачи -->
-<button id="openNewTaskModal">Создать задачу</button>
-
-<div id="taskModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Создание новой задачи</h2>
-        <div th:if="${error}" class="error-message" style="color: red;">
-            <p th:text="${error}"></p>
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a th:href="@{/tasks/{userId}(userId=${userId})}" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
         </div>
-        <form id="taskForm" method="post" th:action="@{/tasks/{userId}/{date}(userId=${userId}, date=${date})}"
-              th:object="${taskDto}">
-            <input type="hidden" id="username" th:field="*{username}" value="'upd'">
-
-            <label for="title">Название:</label>
-            <input type="text" id="title" th:field="*{title}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
-                  style="color: red;"></span>
-            <br><br>
-
-            <label for="description">Описание:</label>
-            <input type="text" id="description" th:field="*{description}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"
-                  style="color: red;"></span>
-            <br><br>
-
-            <button type="submit">Создать</button>
-        </form>
-
-        <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
     </div>
-</div>
+</section>
+<section>
+    <div class="container">
+        <div class="titleNewTaskButtonContainer">
+            <h2>Tasks for <span th:text="${date}"></span></h2>
 
-<!-- Список задач -->
-<table border="1">
-    <thead>
-    <tr>
-        <th>Название</th>
-        <th>Описание</th>
-        <th>Статус</th>
-        <th>Дата</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="task : ${tasks}">
-        <td th:text="${task.title}"></td>
-        <td th:text="${task.description}"></td>
-        <td th:text="${task.status.displayName}"></td>
-        <td th:text="${task.date}"></td>
-        <td>
-            <!-- Кнопка "Изменить" с данными -->
-            <button class="openUpdateModal"
-                    th:data-id="${task.id}"
-                    th:data-task-username="${task.username}"
-                    th:data-title="${task.title}"
-                    th:data-description="${task.description}"
-                    th:data-status="${task.status.name()}"
-                    th:data-date="${task.date}">
-                Изменить
-            </button>
-        </td>
-        <td>
-            <form th:action="@{/tasks/delete/{taskId}(taskId=${task.id})}" method="post">
-                <input type="hidden" name="userId" th:value="${userId}">
-                <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить задачу?')">
-                    Удалить
-                </button>
-            </form>
-        </td>
-        <td>
-            <form th:action="@{/tasks/complete/{taskId}(taskId=${task.id})}" method="post">
-                <input type="hidden" name="userId" th:value="${userId}">
-                <button type="submit" onclick="return confirm('Задача была выполнена?')">
-                    Выполнить
-                </button>
-            </form>
-        </td>
-        <td>
-            <form th:action="@{/tasks/cancel/{taskId}(taskId=${task.id})}" method="post">
-                <input type="hidden" name="userId" th:value="${userId}">
-                <button type="submit" onclick="return confirm('Вы действительно хотите отменить задачу?')">
-                    Отменить
-                </button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+            <div class="newTaskButton">
+                <button id="openNewTaskModal">Create task</button>
+            </div>
+            <div id="taskModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>New task creation</h2>
+                    <div th:if="${error}" class="error-message" style="color: red;">
+                        <p th:text="${error}"></p>
+                    </div>
+                    <form id="taskForm" method="post"
+                          th:action="@{/tasks/{userId}/{date}(userId=${userId}, date=${date})}"
+                          th:object="${taskDto}">
+                        <input type="hidden" id="username" th:field="*{username}" value="'upd'">
 
-<!-- Модальное окно для изменения задачи -->
-<div id="updateTaskModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Редактировать задачу</h2>
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" placeholder="Enter a title" th:field="*{title}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                              style="color: red;"></span>
+                        <br><br>
 
-        <div th:if="${error}" class="error-message" style="color: red;">
-            <p th:text="${error}"></p>
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" placeholder="Enter a description" th:field="*{description}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('description')}"
+                              th:errors="*{description}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <button type="submit">Create</button>
+                    </form>
+
+                    <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
+                </div>
+            </div>
         </div>
-
-        <form id="updateTaskForm" th:action="@{/tasks/update/{taskId}(taskId=${taskId})}"
-              method="post" th:object="${taskDto}">
-
-            <input type="hidden" name="userId" th:value="${userId}">
-            <input type="hidden" id="taskId" name="id" th:field="*{id}">
-            <input type="hidden" id="updateTaskUsername" name="username" th:field="*{username}">
-
-            <label for="updateTaskTitle">Название:</label>
-            <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
-            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateTaskDescription">Описание:</label>
-            <textarea name="description" id="updateTaskDescription" th:field="*{description}"></textarea>
-            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateTaskDate">Дата:</label>
-            <input type="date" name="date" id="updateTaskDate" th:field="*{date}">
-            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" style="color: red;"></span>
-            <br><br>
-
-            <button type="submit">Обновить</button>
-        </form>
-        <input type="hidden" id="validationErrorUpdate" th:value="${taskId != null ? 'true' : 'false'}">
     </div>
-</div>
+</section>
+<section>
+    <div class="container">
+        <div class="dataTable">
+            <table class="tasksTable">
+                <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${tasks}">
+                    <td th:text="${task.title}"></td>
+                    <td th:text="${task.description}"></td>
+                    <td th:text="${task.status.displayName}"></td>
+                    <td th:text="${task.date}"></td>
+                    <td class="buttons">
+                        <div class="tasksButtons">
+                            <div class="editButton">
+                                <button class="openUpdateModal"
+                                        th:data-id="${task.id}"
+                                        th:data-task-username="${task.username}"
+                                        th:data-title="${task.title}"
+                                        th:data-description="${task.description}"
+                                        th:data-status="${task.status.name()}"
+                                        th:data-date="${task.date}">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="completeButton">
+                                <form th:action="@{/tasks/complete/{taskId}(taskId=${task.id})}" method="post">
+                                    <input type="hidden" name="userId" th:value="${userId}">
+                                    <button type="submit" onclick="return confirm('Was the task completed?')">
+                                        Complete
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="cancelButton">
+                                <form th:action="@{/tasks/cancel/{taskId}(taskId=${task.id})}" method="post">
+                                    <input type="hidden" name="userId" th:value="${userId}">
+                                    <button type="submit"
+                                            onclick="return confirm('Do you really want to cancel the task?')">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="deleteButton">
+                                <form th:action="@{/tasks/delete/{taskId}(taskId=${task.id})}" method="post">
+                                    <input type="hidden" name="userId" th:value="${userId}">
+                                    <button type="submit"
+                                            onclick="return confirm('Are you sure you want to delete the task?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div id="updateTaskModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Task Editing</h2>
+
+                    <div th:if="${error}" class="error-message" style="color: red;">
+                        <p th:text="${error}"></p>
+                    </div>
+
+                    <form id="updateTaskForm" th:action="@{/tasks/update/{taskId}(taskId=${taskId})}"
+                          method="post" th:object="${taskDto}">
+
+                        <input type="hidden" name="userId" th:value="${userId}">
+                        <input type="hidden" id="taskId" name="id" th:field="*{id}">
+                        <input type="hidden" id="updateTaskUsername" name="username" th:field="*{username}">
+
+                        <label for="updateTaskTitle">Title:</label>
+                        <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
+                        <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateTaskDescription">Description:</label>
+                        <input type="text" name="description" id="updateTaskDescription" th:field="*{description}">
+                        <span class="error-message" th:if="${#fields.hasErrors('description')}"
+                              th:errors="*{description}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateTaskDate">Date:</label>
+                        <input type="text" name="date" id="updateTaskDate" th:field="*{date}" lang="en">
+                        <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <button type="submit">Edit</button>
+                    </form>
+                    <input type="hidden" id="validationErrorUpdate" th:value="${taskId != null ? 'true' : 'false'}">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
+    flatpickr("#updateTaskDate", {
+        locale: "en"
+    });
+
     document.getElementById('username').value = 'upd';
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -259,7 +283,5 @@
     });
 });
 </script>
-
-<a th:href="@{/tasks/{userId}(userId=${userId})}">Назад к календарю</a>
 </body>
 </html>

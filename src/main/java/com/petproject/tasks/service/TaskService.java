@@ -63,7 +63,7 @@ public class TaskService {
 
         for (Map.Entry<LocalDate, List<TaskDto>> entry : TASKS.entrySet()) {
             Map<String, String> event = new HashMap<>();
-            event.put("title", "🔹 " + entry.getValue().size() + " задачи");
+            event.put("title", "🔹 " + entry.getValue().size() + " active task(s)");
             event.put("start", entry.getKey().toString());
             events.add(event);
         }

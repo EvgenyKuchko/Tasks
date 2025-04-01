@@ -5,28 +5,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Календарь задач</title>
+    <title>Task Calendar</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body>
-<h1>Привет, <span th:text="${firstName}">Пользователь</span>!</h1>
-
-<a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
-<form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
-    <input hidden type="submit" value="Sign Out"/>
-</form>
-
-<a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Панель администратора</a>
-
-<a th:href="@{'/tasks/' + ${userId} + '/search'}">
-    <button>🔍 Поиск задач</button>
-</a>
-
-<div id="calendar"></div>
-
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a th:href="@{/tasks/{userId}(userId=${userId})}" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="findGreetContainer">
+            <div class="greeting">
+                <p class="greetingTxt"> Hello, <span th:text="${firstName}">User</span>! It's time to get to work!</p>
+            </div>
+            <div class="searchPageLink">
+                <a th:href="@{'/tasks/' + ${userId} + '/search'}">
+                    <p>🔍Find the task</p>
+                </a>
+            </div>
+        </div>
+        <div class="calendarContainer">
+            <div class="calendar" id="calendar"></div>
+        </div>
+    </div>
+</section>
 <script th:inline="javascript">
     /*<![CDATA[*/
     let userId = /*[[${userId}]]*/ '1';
+    sessionStorage.setItem('userId', userId);
     let eventsData = /*[[${events}]]*/ '[]'; // Thymeleaf вставляет JSON-данные
     let events = JSON.parse(JSON.stringify(eventsData)); // Преобразуем в массив объектов
     console.log("Events from Thymeleaf:", events); // Проверяем в консоли
@@ -36,7 +64,7 @@
         let calendarEl = document.getElementById('calendar');
         let calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            locale: 'ru',
+            locale: 'eng',
             events: events, // Загружаем события из Thymeleaf
 
             dateClick: function(info) {
@@ -47,6 +75,5 @@
         calendar.render();
     });
 </script>
-
 </body>
 </html>
