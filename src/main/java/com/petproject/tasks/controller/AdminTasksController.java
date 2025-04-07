@@ -47,7 +47,6 @@ public class AdminTasksController {
                              @Valid @ModelAttribute("taskDto") TaskDto taskDto,
                              BindingResult bindingResult,
                              Model model) {
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("tasks", taskService.findAllTasks());

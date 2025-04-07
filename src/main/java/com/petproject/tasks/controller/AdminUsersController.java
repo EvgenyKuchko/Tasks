@@ -3,7 +3,6 @@ package com.petproject.tasks.controller;
 import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.UserRole;
 import com.petproject.tasks.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,10 +10,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -29,7 +26,6 @@ public class AdminUsersController {
                                 Model model) {
         List<UserDto> users = userService.getFilteredUsers(username, role);
         List<String> allRoles = Arrays.asList(UserRole.ADMIN.name(), UserRole.USER.name());
-
         model.addAttribute("users", users);
         model.addAttribute("allRoles", allRoles);
         model.addAttribute("userDto", new UserDto());
@@ -40,7 +36,6 @@ public class AdminUsersController {
     public String createNewUser(@Validated(UserDto.OnCreate.class) @ModelAttribute UserDto userDto,
                                 BindingResult bindingResult,
                                 Model model) {
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct any errors in the form");
             model.addAttribute("users", userService.getAllUsers());

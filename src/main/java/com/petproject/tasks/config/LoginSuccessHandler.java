@@ -2,7 +2,6 @@ package com.petproject.tasks.config;
 
 import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.service.UserService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +19,16 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-            throws IOException, ServletException {
+            throws IOException {
 
-        // Получаем username (email, login)
         String username = authentication.getName();
 
-        // Находим пользователя в базе
         UserDto userDto = userService.getUserByUsername(username);
         if (userDto != null) {
-            Long userId = userDto.getId(); // Достаем ID из базы
-            response.sendRedirect("/tasks/" + userId); // Редиректим на нужную страницу
+            Long userId = userDto.getId();
+            response.sendRedirect("/tasks/" + userId);
         } else {
-            response.sendRedirect("/login?error"); // Если что-то не так
+            response.sendRedirect("/login?error");
         }
     }
 }

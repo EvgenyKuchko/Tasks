@@ -2,7 +2,6 @@ package com.petproject.tasks.controller;
 
 import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,7 +27,7 @@ public class RegistrationController {
     public String registerUser(@Validated(UserDto.OnCreate.class) @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "register";
-        }else if(userService.existsUsername(userDto.getUsername())) {
+        } else if (userService.existsUsername(userDto.getUsername())) {
             bindingResult.rejectValue("username", "error.user", "This username is already taken");
             return "register";
         }

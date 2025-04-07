@@ -26,8 +26,10 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Autowired
     private UserTransformer userTransformer;
 
@@ -97,13 +99,13 @@ public class UserService implements UserDetailsService {
     public void updateUser(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if(userDto.getFirstName() != null && !userDto.getFirstName().equals(user.getFirstName())) {
+        if (userDto.getFirstName() != null && !userDto.getFirstName().equals(user.getFirstName())) {
             user.setFirstName(userDto.getFirstName());
         }
-        if(userDto.getUsername() != null && !userDto.getUsername().equals(user.getUsername())) {
+        if (userDto.getUsername() != null && !userDto.getUsername().equals(user.getUsername())) {
             user.setUsername(userDto.getUsername());
         }
-        if(userDto.getPassword() != null && !userDto.getPassword().equals(user.getPassword())) {
+        if (userDto.getPassword() != null && !userDto.getPassword().equals(user.getPassword())) {
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         }
         userRepository.save(user);

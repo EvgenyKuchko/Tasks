@@ -20,8 +20,10 @@ public class TaskService {
 
     @Autowired
     private TaskRepository taskRepository;
+
     @Autowired
     private TaskTransformer taskTransformer;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -93,7 +95,7 @@ public class TaskService {
     @Transactional
     public List<TaskDto> searchTasks(Long userId, String keyword) {
         if (keyword != null && !keyword.isEmpty()) {
-             return taskRepository.searchTasks(userId, keyword).stream()
+            return taskRepository.searchTasks(userId, keyword).stream()
                     .map(x -> taskTransformer.transform(x))
                     .collect(Collectors.toList());
         }

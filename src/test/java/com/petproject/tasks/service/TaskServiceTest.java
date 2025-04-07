@@ -231,10 +231,10 @@ public class TaskServiceTest {
 
         assertThat(events.size()).isEqualTo(2);
 
-        assertThat(events.get(0).get("title")).isEqualTo("🔹 1 задачи");
+        assertThat(events.get(0).get("title")).isEqualTo("🔹 1 active task(s)");
         assertThat(events.get(0).get("start")).isEqualTo(dateTwo.toString());
 
-        assertThat(events.get(1).get("title")).isEqualTo("🔹 2 задачи");
+        assertThat(events.get(1).get("title")).isEqualTo("🔹 2 active task(s)");
         assertThat(events.get(1).get("start")).isEqualTo(dateOne.toString());
 
         verify(taskRepository, times(1)).getTasksByUserId(userId);
