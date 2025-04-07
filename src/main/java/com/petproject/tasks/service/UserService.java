@@ -45,10 +45,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDto userDto = userTransformer.transform(userRepository.findByUsername(username));
-        if (userDto == null) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
+        UserDto userDto = userTransformer.transform(user);
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         for (UserRole role : userDto.getRoles()) {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority()));
