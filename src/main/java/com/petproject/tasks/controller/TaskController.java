@@ -32,7 +32,6 @@ public class TaskController {
         model.addAttribute("firstName", userDto.getFirstName());
         model.addAttribute("userId", userDto.getId());
         List<Map<String, String>> events = taskService.getEvents(userId);
-
         model.addAttribute("events", events);
         return "calendar";
     }

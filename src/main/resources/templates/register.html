@@ -6,22 +6,22 @@
 </head>
 <body>
 <div class="regLog">
-<h2>Account Registration</h2>
-<form th:action="@{/register}" method="post" th:object="${user}">
-    <label>Name:</label>
-    <input type="text" th:field="*{firstName}" required/>
-    <br><label class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></label><br>
+    <h2>Account Registration</h2>
+    <form th:action="@{/register}" method="post" th:object="${user}">
+        <label>Name:</label>
+        <input type="text" th:field="*{firstName}" required/>
+        <br><label class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></label><br>
 
-    <label>Login:</label>
-    <input type="text" th:field="*{username}" required/>
-    <br><label class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></label><br>
+        <label>Login:</label>
+        <input type="text" th:field="*{username}" required/>
+        <br><label class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></label><br>
 
-    <label>Password:</label>
-    <input type="password" th:field="*{password}" required/>
-    <br><label class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></label>
+        <label>Password:</label>
+        <input type="password" th:field="*{password}" required/>
+        <br><label class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></label>
 
-    <button type="submit">Submit</button>
-</form>
+        <button type="submit">Submit</button>
+    </form>
     <a th:href="@{'/login'}">
         <p>login page</p>
     </a>

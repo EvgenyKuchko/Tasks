@@ -1,9 +1,7 @@
 package com.petproject.tasks.service;
 
-import com.petproject.tasks.dto.TaskDto;
 import com.petproject.tasks.dto.UserDto;
 import com.petproject.tasks.entity.Task;
-import com.petproject.tasks.entity.TaskStatus;
 import com.petproject.tasks.entity.User;
 import com.petproject.tasks.entity.UserRole;
 import com.petproject.tasks.repository.UserRepository;

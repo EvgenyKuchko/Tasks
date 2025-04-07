@@ -13,6 +13,7 @@ import java.util.List;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
+
     List<Task> getTasksByUserId(Long userId);
 
     List<Task> getTasksByUserIdAndDate(Long userId, LocalDate localDate);
