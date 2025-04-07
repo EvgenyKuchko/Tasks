@@ -1,206 +1,246 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Список задач</title>
-  <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    th, td {
-        border: 1px solid black;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f2f2f2;
-    }
-      .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.4);
-  }
-  .modal-content {
-      background-color: white;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 30%;
-  }
-  .close {
-      float: right;
-      font-size: 28px;
-      cursor: pointer;
-  }
-  </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <title>Tasks list</title>
 </head>
 <body>
-<h2>Список задач</h2>
-
-<button id="openTaskModal">Создать задачу</button>
-
-<div id="taskModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Создание новой задачи</h2>
-        <div th:if="${error}" class="error-message" style="color: red;">
-            <p th:text="${error}"></p>
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a id="mainPageLink" href="#" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
         </div>
-        <form id="taskForm" method="post" th:action="@{/admin/tasks/create}" th:object="${taskDto}">
-            <label for="title">Название:</label>
-            <input type="text" id="title" th:field="*{title}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red;"></span>
-            <br><br>
-
-            <label for="description">Описание:</label>
-            <input type="text" id="description" th:field="*{description}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red;"></span>
-            <br><br>
-
-            <label for="date">Дата:</label>
-            <input type="date" id="date" th:field="*{date}" th:value="*{date}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" style="color: red;"></span>
-            <br><br>
-
-            <label for="username">Назначить пользователю:</label>
-            <select id="username" th:field="*{username}" required>
-                <option value="">Выберите пользователя</option>
-                <option th:each="username : ${usernames}"
-                        th:value="${username}"
-                        th:text="${username}"
-                        th:selected="${username == taskDto.username}">
-                </option>
-            </select>
-            <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red;"></span>
-
-            <button type="submit">Создать</button>
-        </form>
-
-        <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
     </div>
-</div>
+</section>
+<section>
+    <div class="container">
+        <div class="titleNewTaskButtonContainer">
+            <h2>Tasks List</h2>
 
-<form method="get" action="/admin/tasks">
-    <label for="keyword">Поиск по ключевому слову:</label>
-    <input type="text" id="keyword" name="keyword" th:value="${param.keyword}">
+            <div class="newTaskButton">
+                <button id="openTaskModal">Create task</button>
+            </div>
+            <div id="taskModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>New task creation</h2>
+                    <div th:if="${error}" class="error-message" style="color: red;">
+                        <p th:text="${error}"></p>
+                    </div>
+                    <form id="taskForm" method="post" th:action="@{/admin/tasks/create}" th:object="${taskDto}">
+                        <label for="title">Title:</label>
+                        <input type="text" id="title" placeholder="Enter a title" th:field="*{title}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                              style="color: red;"></span>
+                        <br><br>
 
-    <label for="username">Фильтр по username:</label>
-    <select id="usrname" name="username">
-        <option value="">Все</option>
-        <option th:each="username : ${usernames}"
-                th:value="${username}"
-                th:text="${username}"
-                th:selected="${param.username == username}"></option>
-    </select>
+                        <label for="description">Description:</label>
+                        <input type="text" id="description" placeholder="Enter a description" th:field="*{description}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('description')}"
+                              th:errors="*{description}" style="color: red;"></span>
+                        <br><br>
 
-    <label for="date">Фильтр по дате:</label>
-    <input type="date" id="dte" name="date" th:value="${param.date}">
+                        <label for="createTaskDate">Date:</label>
+                        <input type="text" id="createTaskDate" th:field="*{date}" placeholder="Select a date" th:value="*{date}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+                              style="color: red;"></span>
+                        <br><br>
 
-    <button type="submit">🔍 Поиск</button>
-    <a href="/admin/tasks">
-        <button type="button">🔄 Сбросить</button>
-    </a>
-</form>
+                        <label for="username">User:</label>
+                        <select id="username" th:field="*{username}" required>
+                            <option value="">Select a user</option>
+                            <option th:each="username : ${usernames}"
+                                    th:value="${username}"
+                                    th:text="${username}"
+                                    th:selected="${username == taskDto.username}">
+                            </option>
+                        </select>
+                        <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
+                              style="color: red;"></span>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Название</th>
-        <th>Описание</th>
-        <th>Дата</th>
-        <th>Статус</th>
-        <th>Username</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="task : ${tasks}">
-        <td th:text="${task.id}"></td>
-        <td th:text="${task.title}"></td>
-        <td th:text="${task.description}"></td>
-        <td th:text="${task.date}"></td>
-        <td th:text="${task.status.displayName}"></td>
-        <th th:text="${task.username}"></th>
-        <th>
-            <button class="openUpdateModel"
-                    th:data-task-id="${task.id}"
-                    th:data-task-title="${task.title}"
-                    th:data-task-description="${task.description}"
-                    th:data-task-status="${task.status}"
-                    th:data-task-date="${task.date}"
-                    th:data-task-username="${task.username}">
-                Редактировать
-            </button>
+                        <button type="submit">Create</button>
+                    </form>
 
-            <form th:action="@{/admin/tasks/{taskId}/complete(taskId=${task.id})}" method="post">
-                <button type="submit" onclick="return confirm('Задача была выполнена?')">
-                    Выполнить
-                </button>
-            </form>
-
-            <form th:action="@{/admin/tasks/{taskId}/cancel(taskId=${task.id})}" method="post">
-                <button type="submit" onclick="return confirm('Вы действительно хотите отменить задачу?')">
-                    Отменить
-                </button>
-            </form>
-
-            <form th:action="@{/admin/tasks/{taskId}/delete(taskId=${task.id})}" method="post">
-                <button type="submit" onclick="return confirm('Вы действительно хотите удалить задачу?')">
-                    Удалить
-                </button>
-            </form>
-
-        </th>
-    </tr>
-    </tbody>
-</table>
-
-<div id="updateTaskModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Редактировать задачу</h2>
-
-        <div th:if="${error}" class="error-message" style="color: red;">
-            <p th:text="${error}"></p>
+                    <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
+                </div>
+            </div>
         </div>
-
-        <form id="updateTaskForm" th:action="@{/admin/tasks/{taskId}/update(taskId=${updateTaskId})}"
-              method="post" th:object="${taskDto}">
-
-            <input type="hidden" id="updateTaskId" name="id" th:field="*{id}">
-            <input type="hidden" id="updateTaskUsername" name="username" th:field="*{username}">
-
-            <label for="updateTaskTitle">Название:</label>
-            <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
-            <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateTaskDescription">Описание:</label>
-            <textarea name="description" id="updateTaskDescription" th:field="*{description}"></textarea>
-            <span class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateTaskDate">Дата:</label>
-            <input type="date" name="date" id="updateTaskDate" th:field="*{date}">
-            <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}" style="color: red;"></span>
-            <br><br>
-
-            <button type="submit">Обновить</button>
-        </form>
-        <input type="hidden" id="validationErrorUpdate" th:value="${updateTaskId != null ? 'true' : 'false'}">
     </div>
-</div>
+</section>
+<section>
+    <div class="container">
+        <div class="tasksFilters">
+            <form method="get" action="/admin/tasks">
+                <label for="keyword">Filter by keyword:</label>
+                <input type="text" id="keyword" name="keyword" placeholder="Enter a keyword"
+                       th:value="${param.keyword}">
+
+                <label for="username">Filter by username:</label>
+                <select id="usrname" name="username">
+                    <option value="">All</option>
+                    <option th:each="username : ${usernames}"
+                            th:value="${username}"
+                            th:text="${username}"
+                            th:selected="${param.username == username}"></option>
+                </select>
+
+                <label for="dte">Filter by date:</label>
+                <input type="text" id="dte" name="date" placeholder="Select a date" th:value="${param.date}">
+
+                <button type="submit">🔍Search</button>
+                <a href="/admin/tasks">
+                    <button type="button">🔄Reset</button>
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="dataTable">
+            <table class="tasksTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Username</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${tasks}">
+                    <td th:text="${task.id}"></td>
+                    <td th:text="${task.title}"></td>
+                    <td th:text="${task.description}"></td>
+                    <td th:text="${task.date}"></td>
+                    <td th:text="${task.status.displayName}"></td>
+                    <th th:text="${task.username}"></th>
+                    <th class="buttons">
+                        <div class="tasksButtons">
+                            <div class="editButton">
+                                <button class="openUpdateModel"
+                                        th:data-task-id="${task.id}"
+                                        th:data-task-title="${task.title}"
+                                        th:data-task-description="${task.description}"
+                                        th:data-task-status="${task.status}"
+                                        th:data-task-date="${task.date}"
+                                        th:data-task-username="${task.username}">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="completeButton">
+                                <form th:action="@{/admin/tasks/{taskId}/complete(taskId=${task.id})}" method="post">
+                                    <button type="submit" onclick="return confirm('Was the task completed?')">
+                                        Complete
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="cancelButton">
+                                <form th:action="@{/admin/tasks/{taskId}/cancel(taskId=${task.id})}" method="post">
+                                    <button type="submit"
+                                            onclick="return confirm('Do you really want to cancel the task?')">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="deleteButton">
+                                <form th:action="@{/admin/tasks/{taskId}/delete(taskId=${task.id})}" method="post">
+                                    <button type="submit"
+                                            onclick="return confirm('Are you sure you want to delete the task?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+                </tbody>
+            </table>
+
+            <div id="updateTaskModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Task Editing</h2>
+
+                    <div th:if="${error}" class="error-message" style="color: red;">
+                        <p th:text="${error}"></p>
+                    </div>
+
+                    <form id="updateTaskForm" th:action="@{/admin/tasks/{taskId}/update(taskId=${updateTaskId})}"
+                          method="post" th:object="${taskDto}">
+
+                        <input type="hidden" id="updateTaskId" name="id" th:field="*{id}">
+                        <input type="hidden" id="updateTaskUsername" name="username" th:field="*{username}">
+
+                        <label for="updateTaskTitle">Title:</label>
+                        <input type="text" name="title" id="updateTaskTitle" th:field="*{title}">
+                        <span class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateTaskDescription">Description:</label>
+                        <input name="description" id="updateTaskDescription" th:field="*{description}">
+                        <span class="error-message" th:if="${#fields.hasErrors('description')}"
+                              th:errors="*{description}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateTaskDate">Date:</label>
+                        <input type="text" name="date" id="updateTaskDate" th:field="*{date}" lang="en">
+                        <span class="error-message" th:if="${#fields.hasErrors('date')}" th:errors="*{date}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <button type="submit">Edit</button>
+                    </form>
+                    <input type="hidden" id="validationErrorUpdate"
+                           th:value="${updateTaskId != null ? 'true' : 'false'}">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
+    flatpickr("#updateTaskDate", {
+        locale: "en"
+    });
+
+    flatpickr("#dte", {
+        locale: "en"
+    });
+
+    flatpickr("#createTaskDate", {
+        locale: "en"
+    });
+
+    let userId = localStorage.getItem('userId');
+    document.getElementById('mainPageLink').href = `/tasks/${userId}`;
+
     document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // Функции для модальных окон
@@ -283,7 +323,5 @@
     });
 });
 </script>
-
-<a th:href="@{/admin}">К странице админа</a>
 </body>
 </html>

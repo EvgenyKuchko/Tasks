@@ -1,177 +1,198 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Список пользователей</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-          .modal {
-          display: none;
-          position: fixed;
-          z-index: 1;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0,0,0,0.4);
-      }
-      .modal-content {
-          background-color: white;
-          margin: 15% auto;
-          padding: 20px;
-          border: 1px solid #888;
-          width: 30%;
-      }
-      .close {
-          float: right;
-          font-size: 28px;
-          cursor: pointer;
-      }
-    </style>
+    <title>Users list</title>
 </head>
 <body>
-
-<h2>Список пользователей</h2>
-
-<button id="openUserModal">Создать пользователя</button>
-
-<div id="userModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Создание нового пользователя</h2>
-        <form id="userForm" method="post" th:action="@{/admin/users/create}" th:object="${userDto}">
-            <label for="firstName">Имя:</label>
-            <input type="text" id="firstName" th:field="*{firstName}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color: red;"></span>
-            <br><br>
-
-            <label for="username">Логин:</label>
-            <input type="text" id="username" th:field="*{username}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red;"></span>
-            <br><br>
-
-            <label for="password">Пароль:</label>
-            <input type="password" id="password" th:field="*{password}" required>
-            <span class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color: red;"></span>
-
-            <button type="submit">Создать</button>
-        </form>
-        <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
-    </div>
-</div>
-
-<!-- Форма для поиска и фильтрации -->
-<form method="get" action="/admin/users">
-    <label for="username">Поиск по логину:</label>
-    <input type="text" id="usrname" name="username" th:value="${param.username}">
-
-    <label for="role">Фильтр по роли:</label>
-    <select id="role" name="role">
-        <option value="">Все</option>
-        <option th:each="role : ${allRoles}"
-                th:value="${role}"
-                th:text="${role}"
-                th:selected="${param.role == role}"></option>
-    </select>
-
-    <button type="submit">🔍 Поиск</button>
-    <a href="/admin/users">
-        <button type="button">🔄 Сбросить</button>
-    </a>
-</form>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Имя</th>
-        <th>Логин</th>
-        <th>Роли</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.firstName}"></td>
-        <td th:text="${user.username}"></td>
-        <td>
-            <span th:each="role : ${user.roles}" th:text="${role} + ' '"></span>
-        </td>
-        <td>
-            <button class="editUserBtn"
-                    th:data-user-id="${user.id}"
-                    th:data-user-firstname="${user.firstName}"
-                    th:data-user-username="${user.username}">
-                Редактировать
-            </button>
-            <form th:action="@{/admin/users/{userId}(userId=${user.id})}" method="post">
-                <button type="submit"
-                        onclick="return confirm('Удалить\Добавить роль Администратора для этого пользователя?')">
-                    Админ
-                </button>
-            </form>
-            <form th:action="@{/admin/users/{userId}/delete(userId=${user.id})}" method="post">
-                <button type="submit" onclick="return confirm('Удалить пользователя?')">
-                    Удалить
-                </button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<div id="updateUserModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Редактировать пользователя</h2>
-
-        <div th:if="${error}" class="error-message" style="color: red;">
-            <p th:text="${error}"></p>
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a id="mainPageLink" href="#" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
         </div>
-
-        <form id="updateUserForm" th:action="@{/admin/users/{userId}/update(userId=${updateUserId})}"
-              method="post" th:object="${userDto}">
-
-            <input type="hidden" id="updateUserId" name="id" th:value="*{id}">
-
-            <label for="updateUserFirstName">Имя:</label>
-            <input type="text" id="updateUserFirstName" name="firstName" th:value="*{firstName}">
-            <span class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateUserUsername">Логин:</label>
-            <input type="text" id="updateUserUsername" name="username" th:value="*{username}">
-            <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}" style="color: red;"></span>
-            <br><br>
-
-            <label for="updateUserPassword">Пароль:</label>
-            <input type="password" id="updateUserPassword" name="password">
-            <span class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color: red;"></span>
-            <br><br>
-
-            <button type="submit">Редактировать</button>
-        </form>
-
-        <!-- Скрытое поле, чтобы JS знал, что были ошибки -->
-        <input type="hidden" id="validationErrorUpdate" th:value="${updateUserId != null ? 'true' : 'false'}">
     </div>
-</div>
+</section>
+<section>
+    <div class="container">
+        <div class="titleNewUserButtonContainer">
+            <h2>Users List</h2>
+            <div class="newUserButton">
+                <button id="openUserModal">Create user</button>
+            </div>
 
+            <div id="userModal" class="modal" th:classappend="${hasErrors} ? 'open' : ''">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>New user creation</h2>
+                    <form id="userForm" method="post" th:action="@{/admin/users/create}" th:object="${userDto}">
+                        <label for="firstName">First name:</label>
+                        <input type="text" id="firstName" placeholder="Enter a first name" th:field="*{firstName}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" placeholder="Enter a username" th:field="*{username}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" placeholder="Enter a password" th:field="*{password}" required>
+                        <span class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
+                              style="color: red;"></span>
+
+                        <button type="submit">Create</button>
+                    </form>
+                    <input type="hidden" id="validationErrorCreate" th:value="${hasErrors} ? 'true' : 'false'">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="usersFilters">
+            <form method="get" action="/admin/users">
+                <label for="username">Filter by username:</label>
+                <input type="text" id="usrname" name="username" placeholder="Enter a username" th:value="${param.username}">
+
+                <label for="role">Filter by role:</label>
+                <select id="role" name="role">
+                    <option value="">All</option>
+                    <option th:each="role : ${allRoles}"
+                            th:value="${role}"
+                            th:text="${role}"
+                            th:selected="${param.role == role}"></option>
+                </select>
+
+                <button type="submit">🔍Search</button>
+                <a href="/admin/users">
+                    <button type="button">🔄Reset</button>
+                </a>
+            </form>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="dataTable">
+            <table class="usersTable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First name</th>
+                    <th>Username</th>
+                    <th>Roles</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.id}"></td>
+                    <td th:text="${user.firstName}"></td>
+                    <td th:text="${user.username}"></td>
+                    <td>
+                        <span th:each="role : ${user.roles}" th:text="${role} + ' '"></span>
+                    </td>
+                    <td class="buttons">
+                        <div class="usersButtons">
+                            <div class="editButton">
+                                <button class="editUserBtn"
+                                        th:data-user-id="${user.id}"
+                                        th:data-user-firstname="${user.firstName}"
+                                        th:data-user-username="${user.username}">
+                                    Edit
+                                </button>
+                            </div>
+                            <div class="adminButton">
+                                <form th:action="@{/admin/users/{userId}(userId=${user.id})}" method="post">
+                                    <button type="submit"
+                                            onclick="return confirm('Delete/Add the Administrator role for this user?')">
+                                        Admin
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="deleteButton">
+                                <form th:action="@{/admin/users/{userId}/delete(userId=${user.id})}" method="post">
+                                    <button type="submit" onclick="return confirm('Delete a user?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div id="updateUserModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>User editing</h2>
+
+                    <div th:if="${error}" class="error-message" style="color: red;">
+                        <p th:text="${error}"></p>
+                    </div>
+
+                    <form id="updateUserForm" th:action="@{/admin/users/{userId}/update(userId=${updateUserId})}"
+                          method="post" th:object="${userDto}">
+
+                        <input type="hidden" id="updateUserId" name="id" th:value="*{id}">
+
+                        <label for="updateUserFirstName">First name:</label>
+                        <input type="text" id="updateUserFirstName" name="firstName" th:value="*{firstName}">
+                        <span class="error-message" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateUserUsername">Username:</label>
+                        <input type="text" id="updateUserUsername" name="username" th:value="*{username}">
+                        <span class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <label for="updateUserPassword">Password:</label>
+                        <input type="password" id="updateUserPassword" name="password">
+                        <span class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"
+                              style="color: red;"></span>
+                        <br><br>
+
+                        <button type="submit">Edit</button>
+                    </form>
+
+                    <!-- Скрытое поле, чтобы JS знал, что были ошибки -->
+                    <input type="hidden" id="validationErrorUpdate"
+                           th:value="${updateUserId != null ? 'true' : 'false'}">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <script>
+    let userId = localStorage.getItem('userId');
+    document.getElementById('mainPageLink').href = `/tasks/${userId}`;
+
     document.addEventListener("DOMContentLoaded", function() {
         // ---- Модальное окно создания пользователя ----
         let userModal = document.getElementById("userModal");
@@ -261,7 +282,5 @@
         }
     });
 </script>
-
-<a th:href="@{/admin}">К странице админа</a>
 </body>
 </html>

@@ -8,9 +8,9 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 public enum TaskStatus {
-    ACTIVE("Активная"),
-    CANCELED("Отменено"),
-    DONE("Выполено");
+    ACTIVE("Active"),
+    CANCELED("Canceled"),
+    DONE("Completed");
 
     private final String displayName;
 }

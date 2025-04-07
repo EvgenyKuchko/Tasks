@@ -1,34 +1,64 @@
 <!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="eng" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск задач</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}">
+    <title>Search Task</title>
 </head>
 <body>
+<section>
+    <div class="container">
+        <div class="generalContainer">
+            <div class="left">
+                <div class="titleClass">
+                    <a th:href="@{/tasks/{userId}(userId=${userId})}" class="titleLink">
+                        <p class="titleClass">TaskNest</p>
+                    </a>
+                </div>
+                <div class="adminPanelLink">
+                    <a th:href="@{/admin}" sec:authorize="hasAuthority('ADMIN')">Admin Panel</a>
+                </div>
+            </div>
+            <div class="right">
+                <div class="logout">
+                    <a href="javascript: document.logoutForm.submit()" role="menuitem"> Logout</a>
+                    <form name="logoutForm" th:action="@{/logout}" method="post" th:hidden="true">
+                        <input hidden type="submit" value="Sign Out"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div class="searchFormContainer">
+            <h1>🔍Find the task</h1>
+            <div class="searchForm">
+                <form th:action="@{'/tasks/' + ${userId} + '/search'}" method="get">
+                    <input type="text" name="query" placeholder="Enter a keyword" required>
+                    <button type="submit">Find</button>
+                </form>
+            </div>
+            <div>
+                <h2>Search results:</h2>
 
-<h1>🔍 Поиск задач</h1>
+                <ul th:if="${tasks != null and not #lists.isEmpty(tasks)}">
+                    <li th:each="task : ${tasks}">
+                        <a th:href="@{'/tasks/' + ${userId} + '/' + ${task.date}}"
+                           th:text="${task.title}"></a>
+                    </li>
+                </ul>
 
-<form th:action="@{'/tasks/' + ${userId} + '/search'}" method="get">
-    <input type="text" name="query" placeholder="Введите ключевое слово" required>
-    <button type="submit">Найти</button>
-</form>
+                <p th:unless="${tasks != null and not #lists.isEmpty(tasks)}" th:if="${searchPerformed}">No results
+                    found</p>
 
-<div>
-    <h2>Результаты поиска:</h2>
-
-    <ul th:if="${tasks != null and not #lists.isEmpty(tasks)}">
-        <li th:each="task : ${tasks}">
-            <a th:href="@{'/tasks/' + ${userId} + '/' + ${task.date}}"
-               th:text="${task.title}"></a>
-        </li>
-    </ul>
-
-    <p th:unless="${tasks != null and not #lists.isEmpty(tasks)}" th:if="${searchPerformed}">Результатов не найдено</p>
-
-    <p th:if="${blankField}">The field cannot contain only spaces</p>
-</div>
-
-<a th:href="@{/tasks/{userId}(userId=${userId})}">Назад к календарю</a>
+                <p th:if="${blankField}">The field cannot contain only spaces</p>
+            </div>
+        </div>
+    </div>
+</section>
 </body>
 </html>
