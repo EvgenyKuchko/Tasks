@@ -51,7 +51,7 @@
     </div>
 </section>
 <script>
-    let userId = localStorage.getItem('userId');
+    let userId = sessionStorage.getItem('userId');
     document.getElementById('mainPageLink').href = `/tasks/${userId}`;
 </script>
 </body>
